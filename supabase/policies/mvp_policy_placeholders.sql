@@ -1,0 +1,4 @@
+-- TODO: enable RLS and replace these notes with real policies when auth is added.
+-- alter table public.forum_posts enable row level security;
+-- alter table public.forum_comments enable row level security;
+-- alter table public.mentor_bookings enable row level security;
