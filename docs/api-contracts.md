@@ -1,5 +1,7 @@
 # API Contracts
 
+These contracts are MVP-facing placeholders unless a concrete implementation is noted. Final implementation can be Supabase client queries, edge functions, or Next.js route handlers depending on product needs.
+
 ## Rent Fairness Check
 
 `POST /functions/v1/rent-check`
@@ -62,7 +64,6 @@ Runs a deterministic rent fairness check and stores the result in `rent_checks`.
 - No real AI is used.
 - If report volume is low, the response clearly says baseline data was used.
 - Production admin controls for updating rent baselines are still TODO.
-These contracts are placeholders for the MVP. Final implementation can be Supabase client queries, edge functions, or Next.js route handlers depending on product needs.
 
 ## Localities
 
@@ -73,31 +74,6 @@ Returns visible locality records and score components.
 `GET /localities/:id`
 
 Returns one locality with notes and related rent reference data.
-
-## Rent Fairness
-
-`POST /rent-checks`
-
-Request:
-
-```json
-{
-  "localityId": "uuid",
-  "bhkType": "1BHK",
-  "quotedRent": 35000
-}
-```
-
-Response:
-
-```json
-{
-  "fairnessLabel": "high",
-  "message": "This rent looks above the current MVP reference range."
-}
-```
-
-TODO: keep this deterministic. Do not add real AI in the MVP.
 
 ## Kannada Lessons
 
