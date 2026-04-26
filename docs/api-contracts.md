@@ -1,5 +1,7 @@
 # API Contracts
 
+These contracts are MVP-facing placeholders unless a concrete implementation is noted. Final implementation can be Supabase client queries, edge functions, or Next.js route handlers depending on product needs.
+
 ## Rent Fairness Check
 
 `POST /functions/v1/rent-check`
@@ -62,3 +64,69 @@ Runs a deterministic rent fairness check and stores the result in `rent_checks`.
 - No real AI is used.
 - If report volume is low, the response clearly says baseline data was used.
 - Production admin controls for updating rent baselines are still TODO.
+
+## Localities
+
+`GET /localities`
+
+Returns visible locality records and score components.
+
+`GET /localities/:id`
+
+Returns one locality with notes and related rent reference data.
+
+## Kannada Lessons
+
+`GET /kannada-lessons/today`
+
+Returns the daily Kannada lesson.
+
+`POST /kannada-lessons/:id/complete`
+
+Marks a lesson complete and updates streak data once user profiles exist.
+
+## Forum
+
+`GET /forum-posts`
+
+Returns visible forum posts.
+
+`POST /forum-posts`
+
+Creates a forum post.
+
+`POST /forum-posts/:id/comments`
+
+Creates a comment on a forum post.
+
+## Quests
+
+`GET /quests`
+
+Returns active quests.
+
+`POST /quests/:id/complete`
+
+Records quest completion and awards points once user profiles exist.
+
+## Mentors
+
+`GET /mentors`
+
+Returns approved mentor profiles.
+
+`POST /mentor-bookings`
+
+Creates a mentor booking request.
+
+## Admin
+
+`GET /admin/moderation-queue`
+
+Returns content and profiles needing review.
+
+`POST /admin/moderation-actions`
+
+Records a moderation action.
+
+TODO: protect all admin APIs with production auth before launch.
