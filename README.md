@@ -2,19 +2,16 @@
 
 iOS app for surviving BLR.
 
-## Supabase Setup
+## Area Recommendations
 
-The MVP database lives in `supabase/`.
+The deterministic area recommendation engine lives in:
 
 ```sh
-supabase start
-supabase db reset
+supabase/edge-functions/area-recommendations
 ```
 
-The migrations create the NammaCircle MVP schema with Postgres, PostGIS geography columns, indexes, simple RLS policies, and deterministic rent baselines. Seed data includes 10 Bangalore localities, sample scores, Kannada lessons, quests, and starter forum posts.
-
-Run the pure rent fairness tests with:
+It scores seeded `localities` and `locality_scores` data without external maps APIs or AI-generated facts. Run the pure scoring tests with:
 
 ```sh
-deno test supabase/edge-functions/rent-check/rentFairness.test.ts
+deno test supabase/edge-functions/area-recommendations/areaRecommendations.test.ts
 ```
