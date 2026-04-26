@@ -78,6 +78,56 @@ on conflict (locality_id) do update set
   last_verified_at = excluded.last_verified_at,
   confidence_level = excluded.confidence_level;
 
+with baseline_seed(slug, bhk, median_rent, deposit_months, sample_size, confidence_level) as (
+  values
+    ('hsr-layout', '1BHK', 26000, 6, 12, 'medium'),
+    ('hsr-layout', '2BHK', 43000, 6, 18, 'medium'),
+    ('bellandur', '1BHK', 28000, 6, 10, 'medium'),
+    ('bellandur', '2BHK', 46000, 7, 16, 'medium'),
+    ('whitefield', '1BHK', 24000, 6, 14, 'medium'),
+    ('whitefield', '2BHK', 39000, 6, 20, 'medium'),
+    ('marathahalli', '1BHK', 22000, 6, 9, 'medium'),
+    ('marathahalli', '2BHK', 36000, 6, 13, 'medium'),
+    ('koramangala', '1BHK', 32000, 7, 18, 'high'),
+    ('koramangala', '2BHK', 56000, 8, 22, 'high'),
+    ('indiranagar', '1BHK', 35000, 8, 16, 'high'),
+    ('indiranagar', '2BHK', 62000, 8, 20, 'high'),
+    ('btm-layout', '1BHK', 19000, 5, 11, 'medium'),
+    ('btm-layout', '2BHK', 32000, 6, 13, 'medium'),
+    ('jp-nagar', '1BHK', 21000, 5, 10, 'medium'),
+    ('jp-nagar', '2BHK', 35000, 6, 14, 'medium'),
+    ('electronic-city', '1BHK', 17000, 5, 12, 'medium'),
+    ('electronic-city', '2BHK', 29000, 5, 16, 'medium'),
+    ('hebbal', '1BHK', 24000, 6, 7, 'low'),
+    ('hebbal', '2BHK', 41000, 6, 9, 'low')
+)
+insert into public.rent_baselines (
+  locality_id,
+  bhk,
+  median_rent,
+  deposit_months,
+  sample_size,
+  confidence_level,
+  source_note
+)
+select
+  localities.id,
+  baseline_seed.bhk,
+  baseline_seed.median_rent,
+  baseline_seed.deposit_months,
+  baseline_seed.sample_size,
+  baseline_seed.confidence_level,
+  'Seeded MVP baseline for deterministic fallback checks.'
+from baseline_seed
+join public.localities on localities.slug = baseline_seed.slug
+on conflict (locality_id, bhk) do update set
+  median_rent = excluded.median_rent,
+  deposit_months = excluded.deposit_months,
+  sample_size = excluded.sample_size,
+  confidence_level = excluded.confidence_level,
+  source_note = excluded.source_note,
+  updated_at = now();
+
 insert into public.locality_signals (locality_id, signal_type, source_type, summary, confidence_level, verified_at)
 select id, 'commute', 'admin', 'MVP seed signal based on broad commute access and neighborhood positioning.', 'medium', now()
 from public.localities
