@@ -1,25 +1,22 @@
 # NammaCircle Supabase
 
-Backend assets for the NammaCircle MVP.
+Supabase/Postgres is the source of truth for the NammaCircle MVP.
 
-## Folders
+## Contents
 
-- `migrations`: SQL schema changes
-- `seed.sql`: local seed data
-- `edge-functions`: placeholder functions for future server-side workflows
-- `policies`: row level security notes and policy SQL placeholders
+- `migrations/0001_nammacircle_mvp_schema.sql`: initial MVP schema, indexes, PostGIS columns, and simple RLS policies.
+- `seed.sql`: Bangalore locality, score, lesson, quest, and sample forum data.
 
-## MVP Backend Scope
+## Local Setup
 
-- Localities and score components
-- Rent fairness reference data
-- Kannada lessons and streaks
-- Forum posts and comments
-- Quests and points
-- Mentor profiles and booking requests
+```sh
+supabase start
+supabase db reset
+```
 
-## Not Implemented Yet
+## Notes
 
-- Production auth
-- Payments
-- Real AI scoring or recommendations
+- PostGIS is enabled with `create extension if not exists postgis`.
+- RLS is intentionally simple for MVP development.
+- Admin authorization is a TODO and should later use either custom JWT role claims or an `admin_users` table.
+- Do not hardcode secrets in SQL, seed files, edge functions, or app code.
