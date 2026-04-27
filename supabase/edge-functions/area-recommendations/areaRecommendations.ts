@@ -97,7 +97,6 @@ export function scoreCandidate(
     fit: fitForScore(score),
     score,
     top_reasons: buildTopReasons(
-      input,
       candidate,
       components,
       budgetAdjustment,
@@ -220,7 +219,6 @@ function buildWeightedComponents(
 }
 
 function buildTopReasons(
-  input: AreaRecommendationInput,
   candidate: RecommendationCandidate,
   components: WeightedComponent[],
   budgetAdjustment: number,
