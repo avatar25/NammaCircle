@@ -16,9 +16,32 @@ final class MockMentorService: MentorServicing {
 }
 
 final class SupabaseMentorService: MentorServicing {
+    private let provider: SupabaseClientProvider
+
+    init(provider: SupabaseClientProvider = .shared) {
+        self.provider = provider
+    }
+
     func fetchMentors() async throws -> [Mentor] {
-        // TODO: fetch verified mentors from Supabase.
-        throw ServicePlaceholderError.notImplemented
+        let rows: [SupabaseMentorRow] = try await provider.fetchTable(
+            "mentors",
+            queryItems: [
+                URLQueryItem(name: "select", value: "id,user_id,display_name,bio,specialties,hourly_rate_inr,is_verified"),
+                URLQueryItem(name: "is_verified", value: "eq.true"),
+                URLQueryItem(name: "order", value: "created_at.desc")
+            ]
+        )
+
+        return rows.map {
+            Mentor(
+                id: $0.id,
+                displayName: $0.displayName,
+                bio: $0.bio ?? "",
+                specialties: $0.specialties ?? [],
+                hourlyRateInr: $0.hourlyRateInr,
+                isVerified: $0.isVerified
+            )
+        }
     }
 
     func requestBooking(mentor: Mentor, topic: String) async throws {

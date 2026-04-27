@@ -11,43 +11,67 @@ struct LocalityMapView: View {
     )
 
     var body: some View {
-        Map(position: $camera) {
-            ForEach(viewModel.localities) { locality in
-                Annotation(locality.name, coordinate: locality.coordinate) {
-                    NavigationLink {
-                        LocalityDetailView(locality: locality)
-                    } label: {
-                        Circle()
-                            .fill(FitColor.color(for: locality.recommendation.fit))
-                            .frame(width: 18, height: 18)
-                            .overlay(Circle().stroke(.white, lineWidth: 3))
-                            .shadow(radius: 4)
-                    }
-                    .buttonStyle(.plain)
-                }
-            }
-        }
-        .safeAreaInset(edge: .bottom) {
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 12) {
-                    ForEach(viewModel.localities) { locality in
+        ZStack {
+            Map(position: $camera) {
+                ForEach(viewModel.localities) { locality in
+                    Annotation(locality.name, coordinate: locality.coordinate) {
                         NavigationLink {
                             LocalityDetailView(locality: locality)
                         } label: {
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(locality.name).font(.headline)
-                                Text("\(locality.recommendation.score) / \(locality.recommendation.fit.title)")
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
-                            .padding()
-                            .background(.regularMaterial)
-                            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                            Circle()
+                                .fill(FitColor.color(for: locality.recommendation.fit))
+                                .frame(width: 18, height: 18)
+                                .overlay(Circle().stroke(.white, lineWidth: 3))
+                                .shadow(radius: 4)
                         }
                         .buttonStyle(.plain)
                     }
                 }
+            }
+
+            if viewModel.isLoading {
+                LoadingStateView(message: "Loading localities")
+                    .background(.regularMaterial)
+                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    .padding()
+            } else if viewModel.localities.isEmpty {
+                EmptyStateView(title: "No localities", message: "No locality rows were returned from the active data source.")
+                    .background(.regularMaterial)
+                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    .padding()
+            }
+
+            if let errorMessage = viewModel.errorMessage {
+                VStack {
+                    ErrorBanner(message: errorMessage)
+                    Spacer()
+                }
                 .padding()
+            }
+        }
+        .safeAreaInset(edge: .bottom) {
+            if !viewModel.localities.isEmpty {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 12) {
+                        ForEach(viewModel.localities) { locality in
+                            NavigationLink {
+                                LocalityDetailView(locality: locality)
+                            } label: {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(locality.name).font(.headline)
+                                    Text("\(locality.recommendation.score) / \(locality.recommendation.fit.title)")
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                                .padding()
+                                .background(.regularMaterial)
+                                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                    .padding()
+                }
             }
         }
         .navigationTitle("Locality Map")

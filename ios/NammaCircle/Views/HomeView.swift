@@ -14,6 +14,14 @@ struct HomeView: View {
                 Text("Your Bangalore survival snapshot for today.")
                     .foregroundStyle(.secondary)
 
+                if let errorMessage = localityVM.errorMessage ?? kannadaVM.errorMessage ?? questVM.errorMessage {
+                    ErrorBanner(message: errorMessage)
+                }
+
+                if localityVM.isLoading || kannadaVM.isLoading || questVM.isLoading {
+                    LoadingStateView(message: "Loading today’s snapshot")
+                }
+
                 if let lesson = kannadaVM.lesson {
                     NavigationLink {
                         KannadaLessonView()
@@ -56,6 +64,13 @@ struct HomeView: View {
                         LocalityCard(locality: locality)
                     }
                     .buttonStyle(.plain)
+                }
+
+                if !localityVM.isLoading && localityVM.recommendations.isEmpty {
+                    EmptyStateView(
+                        title: "No recommendations yet",
+                        message: "Check Supabase configuration or switch back to mock mode."
+                    )
                 }
 
                 NavigationLink {

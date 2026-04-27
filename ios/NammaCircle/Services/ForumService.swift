@@ -34,14 +34,63 @@ final class MockForumService: ForumServicing {
 }
 
 final class SupabaseForumService: ForumServicing {
+    private let provider: SupabaseClientProvider
+
+    init(provider: SupabaseClientProvider = .shared) {
+        self.provider = provider
+    }
+
     func fetchPosts() async throws -> [ForumPost] {
-        // TODO: fetch visible forum_posts and forum_comments from Supabase.
-        throw ServicePlaceholderError.notImplemented
+        let posts: [SupabaseForumPostRow] = try await provider.fetchTable(
+            "forum_posts",
+            queryItems: [
+                URLQueryItem(name: "select", value: "id,user_id,locality_id,title,body,category,urgency,moderation_status,created_at"),
+                URLQueryItem(name: "moderation_status", value: "eq.visible"),
+                URLQueryItem(name: "order", value: "created_at.desc"),
+                URLQueryItem(name: "limit", value: "50")
+            ]
+        )
+        let comments: [SupabaseForumCommentRow] = try await provider.fetchTable(
+            "forum_comments",
+            queryItems: [
+                URLQueryItem(name: "select", value: "id,post_id,user_id,body,moderation_status,created_at"),
+                URLQueryItem(name: "moderation_status", value: "eq.visible"),
+                URLQueryItem(name: "order", value: "created_at.asc"),
+                URLQueryItem(name: "limit", value: "100")
+            ]
+        )
+        let commentsByPost = Dictionary(grouping: comments, by: \.postId)
+
+        return posts.map { post in
+            ForumPost(
+                id: post.id,
+                title: post.title,
+                body: post.body,
+                category: post.category,
+                urgency: post.urgency ?? "normal",
+                localityName: nil,
+                comments: (commentsByPost[post.id] ?? []).map {
+                    ForumComment(id: $0.id, body: $0.body, authorName: "Neighbor")
+                }
+            )
+        }
     }
 
     func createPost(title: String, body: String, category: String) async throws {
-        // TODO: insert forum_posts once auth exists.
-        throw ServicePlaceholderError.notImplemented
+        let session = try await provider.authenticatedSessionForWrite()
+        let payload = SupabaseForumPostInsert(
+            userId: session.userID,
+            title: title,
+            body: body,
+            category: category,
+            urgency: "normal",
+            moderationStatus: "visible"
+        )
+        let _: [SupabaseForumPostRow] = try await provider.insert(
+            into: "forum_posts",
+            payload: payload,
+            authenticated: true
+        )
     }
 
     func addComment(postID: UUID, body: String) async throws {

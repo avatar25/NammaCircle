@@ -9,13 +9,14 @@ final class RentCheckViewModel: ObservableObject {
 
     private let service: RentCheckServicing
 
-    init(service: RentCheckServicing = MockRentCheckService()) {
+    init(service: RentCheckServicing = ServiceFactory.shared.rentCheckService) {
         self.service = service
     }
 
     func checkRent() {
         Task {
             isChecking = true
+            errorMessage = nil
             defer { isChecking = false }
 
             do {

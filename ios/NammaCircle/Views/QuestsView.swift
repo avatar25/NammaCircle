@@ -5,19 +5,29 @@ struct QuestsView: View {
 
     var body: some View {
         List {
+            if let errorMessage = viewModel.errorMessage {
+                ErrorBanner(message: errorMessage)
+            }
+
             Section("Daily quests") {
-                ForEach(viewModel.quests) { quest in
-                    NavigationLink {
-                        QuestDetailView(quest: quest, viewModel: viewModel)
-                    } label: {
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text(quest.title).font(.headline)
-                            Text(quest.description)
-                                .lineLimit(2)
-                                .foregroundStyle(.secondary)
-                            Text("\(quest.points) points")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
+                if viewModel.isLoading {
+                    LoadingStateView(message: "Loading quests")
+                } else if viewModel.quests.isEmpty {
+                    EmptyStateView(title: "No quests", message: "No active quests are available yet.")
+                } else {
+                    ForEach(viewModel.quests) { quest in
+                        NavigationLink {
+                            QuestDetailView(quest: quest, viewModel: viewModel)
+                        } label: {
+                            VStack(alignment: .leading, spacing: 6) {
+                                Text(quest.title).font(.headline)
+                                Text(quest.description)
+                                    .lineLimit(2)
+                                    .foregroundStyle(.secondary)
+                                Text("\(quest.points) points")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
                         }
                     }
                 }

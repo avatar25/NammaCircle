@@ -6,6 +6,10 @@ struct ForumView: View {
 
     var body: some View {
         List {
+            if let errorMessage = viewModel.errorMessage {
+                ErrorBanner(message: errorMessage)
+            }
+
             Section {
                 Button {
                     isCreating = true
@@ -15,24 +19,30 @@ struct ForumView: View {
             }
 
             Section("Questions") {
-                ForEach(viewModel.posts) { post in
-                    NavigationLink {
-                        ForumPostDetailView(post: post)
-                    } label: {
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text(post.title).font(.headline)
-                            Text(post.body)
-                                .lineLimit(2)
-                                .foregroundStyle(.secondary)
-                            HStack {
-                                Text(post.category)
-                                if let locality = post.localityName {
-                                    Text(locality)
+                if viewModel.isLoading {
+                    LoadingStateView(message: "Loading forum")
+                } else if viewModel.posts.isEmpty {
+                    EmptyStateView(title: "No posts", message: "No approved forum posts are available yet.")
+                } else {
+                    ForEach(viewModel.posts) { post in
+                        NavigationLink {
+                            ForumPostDetailView(post: post)
+                        } label: {
+                            VStack(alignment: .leading, spacing: 6) {
+                                Text(post.title).font(.headline)
+                                Text(post.body)
+                                    .lineLimit(2)
+                                    .foregroundStyle(.secondary)
+                                HStack {
+                                    Text(post.category)
+                                    if let locality = post.localityName {
+                                        Text(locality)
+                                    }
+                                    Text("\(post.comments.count) comments")
                                 }
-                                Text("\(post.comments.count) comments")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
                             }
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
                         }
                     }
                 }
@@ -64,7 +74,7 @@ struct CreatePostView: View {
                 viewModel.createPost()
                 dismiss()
             }
-            .disabled(viewModel.draftTitle.isEmpty || viewModel.draftBody.isEmpty)
+            .disabled(viewModel.draftTitle.isEmpty || viewModel.draftBody.isEmpty || viewModel.isSaving)
         }
         .navigationTitle("Create Post")
         .toolbar {

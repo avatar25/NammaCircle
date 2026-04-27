@@ -7,7 +7,13 @@ struct KannadaLessonView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                if let lesson = viewModel.lesson {
+                if let errorMessage = viewModel.errorMessage {
+                    ErrorBanner(message: errorMessage)
+                }
+
+                if viewModel.isLoading {
+                    LoadingStateView(message: "Loading today’s lesson")
+                } else if let lesson = viewModel.lesson {
                     SectionCard {
                         VStack(alignment: .leading, spacing: 12) {
                             Text(lesson.title)
@@ -45,7 +51,7 @@ struct KannadaLessonView: View {
                         }
                     }
                 } else {
-                    ProgressView("Loading lesson")
+                    EmptyStateView(title: "No lesson", message: "No published Kannada lesson is available.")
                 }
             }
             .padding()

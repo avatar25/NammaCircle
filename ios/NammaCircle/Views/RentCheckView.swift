@@ -13,6 +13,9 @@ struct RentCheckView: View {
                 SectionCard {
                     VStack(alignment: .leading, spacing: 14) {
                         Text("Rent fairness check").font(.title2.bold())
+                        if let errorMessage = viewModel.errorMessage {
+                            ErrorBanner(message: errorMessage)
+                        }
                         Picker("Locality", selection: $viewModel.input.locality) {
                             Text("Choose locality").tag(Locality?.none)
                             ForEach(localityVM.localities) { locality in

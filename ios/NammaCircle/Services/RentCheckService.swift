@@ -57,8 +57,40 @@ final class MockRentCheckService: RentCheckServicing {
 }
 
 final class SupabaseRentCheckService: RentCheckServicing {
+    private let provider: SupabaseClientProvider
+    private let fallback = MockRentCheckService()
+
+    init(provider: SupabaseClientProvider = .shared) {
+        self.provider = provider
+    }
+
     func checkRent(input: RentCheckInput) async throws -> RentCheckResult {
-        // TODO: call rent-check edge function.
-        throw ServicePlaceholderError.notImplemented
+        guard let locality = input.locality,
+              let rent = Int(input.monthlyRent),
+              let deposit = Int(input.deposit) else {
+            return try await fallback.checkRent(input: input)
+        }
+
+        let request = SupabaseRentCheckRequest(
+            localityId: locality.id,
+            bhk: input.bhk,
+            monthlyRent: rent,
+            deposit: deposit,
+            furnishing: input.furnishing,
+            maintenance: Int(input.maintenance) ?? 0
+        )
+
+        do {
+            let response: SupabaseRentCheckResponse = try await provider.invokeFunction("rent-check", body: request)
+            return RentCheckResult(
+                label: response.label,
+                score: response.score,
+                explanation: response.explanation,
+                negotiationPoints: response.recommendedNegotiationPoints,
+                depositWarning: response.depositWarning
+            )
+        } catch {
+            return try await fallback.checkRent(input: input)
+        }
     }
 }

@@ -5,24 +5,34 @@ struct MentorView: View {
 
     var body: some View {
         List {
-            ForEach(viewModel.mentors) { mentor in
-                NavigationLink {
-                    MentorDetailView(mentor: mentor, viewModel: viewModel)
-                } label: {
-                    VStack(alignment: .leading, spacing: 6) {
-                        HStack {
-                            Text(mentor.displayName).font(.headline)
-                            if mentor.isVerified {
-                                Image(systemName: "checkmark.seal.fill")
-                                    .foregroundStyle(.green)
+            if let errorMessage = viewModel.errorMessage {
+                ErrorBanner(message: errorMessage)
+            }
+
+            if viewModel.isLoading {
+                LoadingStateView(message: "Loading mentors")
+            } else if viewModel.mentors.isEmpty {
+                EmptyStateView(title: "No mentors", message: "No verified mentors are available yet.")
+            } else {
+                ForEach(viewModel.mentors) { mentor in
+                    NavigationLink {
+                        MentorDetailView(mentor: mentor, viewModel: viewModel)
+                    } label: {
+                        VStack(alignment: .leading, spacing: 6) {
+                            HStack {
+                                Text(mentor.displayName).font(.headline)
+                                if mentor.isVerified {
+                                    Image(systemName: "checkmark.seal.fill")
+                                        .foregroundStyle(.green)
+                                }
                             }
+                            Text(mentor.bio)
+                                .lineLimit(2)
+                                .foregroundStyle(.secondary)
+                            Text(mentor.specialties.joined(separator: ", "))
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
                         }
-                        Text(mentor.bio)
-                            .lineLimit(2)
-                            .foregroundStyle(.secondary)
-                        Text(mentor.specialties.joined(separator: ", "))
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
                     }
                 }
             }
