@@ -102,6 +102,25 @@ struct SupabaseMentorRow: Decodable {
     let isVerified: Bool
 }
 
+struct SupabaseMentorBookingRow: Decodable {
+    let id: UUID
+    let mentorId: UUID
+    let userId: UUID?
+    let topic: String
+    let preferredTimeText: String?
+    let status: String
+    let scheduledAt: Date?
+    let createdAt: Date?
+}
+
+struct SupabaseMentorBookingInsert: Encodable {
+    let mentorId: UUID
+    let userId: UUID
+    let topic: String
+    let preferredTimeText: String?
+    let status: String
+}
+
 struct SupabaseRentCheckRequest: Encodable {
     let localityId: UUID
     let bhk: String

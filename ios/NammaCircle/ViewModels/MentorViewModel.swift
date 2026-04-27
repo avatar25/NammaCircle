@@ -5,8 +5,10 @@ import Combine
 final class MentorViewModel: ObservableObject {
     @Published var mentors: [Mentor] = []
     @Published var bookingTopic = ""
-    @Published var requestedMentorIDs: Set<UUID> = []
+    @Published var preferredTimeText = ""
+    @Published var bookingStatuses: [UUID: MentorBookingStatus] = [:]
     @Published var isLoading = false
+    @Published var isRequesting = false
     @Published var errorMessage: String?
 
     private let service: MentorServicing
@@ -23,6 +25,7 @@ final class MentorViewModel: ObservableObject {
 
             do {
                 mentors = try await service.fetchMentors()
+                bookingStatuses = try await service.fetchBookingStatuses()
             } catch {
                 errorMessage = error.localizedDescription
             }
@@ -32,14 +35,31 @@ final class MentorViewModel: ObservableObject {
     func requestBooking(for mentor: Mentor) {
         Task {
             errorMessage = nil
+            isRequesting = true
+            defer { isRequesting = false }
 
             do {
-                try await service.requestBooking(mentor: mentor, topic: bookingTopic)
-                requestedMentorIDs.insert(mentor.id)
+                let status = try await service.requestBooking(
+                    mentor: mentor,
+                    topic: bookingTopic,
+                    preferredTime: preferredTimeText
+                )
+                bookingStatuses[mentor.id] = status
                 bookingTopic = ""
+                preferredTimeText = ""
             } catch {
                 errorMessage = error.localizedDescription
             }
         }
+    }
+
+    func status(for mentor: Mentor) -> MentorBookingStatus? {
+        bookingStatuses[mentor.id]
+    }
+
+    func canRequest(_ mentor: Mentor) -> Bool {
+        !bookingTopic.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
+        !isRequesting &&
+        status(for: mentor) == nil
     }
 }

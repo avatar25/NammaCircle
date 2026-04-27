@@ -245,3 +245,43 @@ Admin approve/reject actions update `forum_posts.moderation_status` or `forum_co
 ```
 
 `admin_user_id` is temporarily nullable until production admin auth is implemented.
+
+## Mentor Marketplace
+
+Mentor profiles can be linked to a Supabase `user_id` or kept as standalone placeholders with `user_id = null`.
+
+Specialties:
+
+- `Area selection`
+- `Rent negotiation`
+- `Kannada basics`
+- `Broker/landlord issues`
+- `Student/fresher settling`
+- `Cost reduction`
+
+### Active Mentor List
+
+`GET /rest/v1/mentors?is_verified=eq.true`
+
+### Booking Request
+
+`POST /rest/v1/mentor_bookings`
+
+```json
+{
+  "mentor_id": "mentor-uuid",
+  "user_id": "auth-user-uuid",
+  "topic": "Need help choosing between HSR and BTM",
+  "preferred_time_text": "Saturday morning or weekday after 7 PM",
+  "status": "pending"
+}
+```
+
+Booking statuses:
+
+- `pending`
+- `accepted`
+- `completed`
+- `cancelled`
+
+Payments are not part of the MVP.

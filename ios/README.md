@@ -99,12 +99,15 @@ Supabase service classes now read:
 - active quests
 - current user's quest submission statuses
 - verified mentors
+- current user's mentor booking statuses
 
 `RentCheckService` calls the `rent-check` edge function and falls back to local deterministic logic if the endpoint is unavailable.
 
 Forum post creation uses anonymous Supabase auth when the Supabase Swift package is linked and Anonymous Sign-Ins are enabled in Supabase. New posts are submitted as `pending`, the UI shows "Submitted for review.", and only `approved` or legacy `visible` posts/comments are fetched. Report buttons insert rows into `moderation_reports`.
 
 Quest submissions also use anonymous Supabase auth in development. Most quest proof is submitted as `pending`; `learn_kannada` quests auto-submit as `approved`. Points are awarded by the backend when a submission is approved, not directly by the iOS client. Photo upload is currently a placeholder toggle.
+
+Mentor booking requests use anonymous Supabase auth in development. Users submit a topic and preferred time text; bookings start as `pending` and are reviewed by admin. Payments are intentionally not implemented.
 
 Full production auth is intentionally not implemented yet.
 

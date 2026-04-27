@@ -5,6 +5,7 @@ import { createAdminSupabaseClient } from "./supabase";
 
 type ModerationStatus = "approved" | "rejected" | "hidden" | "visible";
 type QuestType = "learn_kannada" | "forum_help" | "photo_walk" | "rent_signal" | "area_tip";
+type MentorBookingStatus = "pending" | "accepted" | "completed" | "cancelled";
 
 export async function updateLocalityScores(formData: FormData) {
   const supabase = createAdminSupabaseClient();
@@ -155,6 +156,61 @@ export async function toggleMentorVerification(formData: FormData) {
   revalidatePath("/mentors");
 }
 
+export async function createMentor(formData: FormData) {
+  const supabase = createAdminSupabaseClient();
+  const { error } = await supabase.from("mentors").insert({
+    user_id: nullableString(formData.get("user_id")),
+    display_name: String(formData.get("display_name")),
+    bio: nullableString(formData.get("bio")),
+    specialties: specialtyList(formData),
+    hourly_rate_inr: toNullableNumber(formData.get("hourly_rate_inr")),
+    is_verified: formData.get("is_verified") === "on"
+  });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  revalidatePath("/mentors");
+}
+
+export async function updateMentor(formData: FormData) {
+  const supabase = createAdminSupabaseClient();
+  const { error } = await supabase
+    .from("mentors")
+    .update({
+      user_id: nullableString(formData.get("user_id")),
+      display_name: String(formData.get("display_name")),
+      bio: nullableString(formData.get("bio")),
+      specialties: specialtyList(formData),
+      hourly_rate_inr: toNullableNumber(formData.get("hourly_rate_inr")),
+      is_verified: formData.get("is_verified") === "on"
+    })
+    .eq("id", String(formData.get("id")));
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  revalidatePath("/mentors");
+}
+
+export async function updateMentorBookingStatus(formData: FormData) {
+  const status = String(formData.get("status")) as MentorBookingStatus;
+  const supabase = createAdminSupabaseClient();
+  const { error } = await supabase
+    .from("mentor_bookings")
+    .update({ status })
+    .eq("id", String(formData.get("id")));
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  revalidatePath("/mentors");
+  revalidatePath("/dashboard");
+}
+
 async function updateStatus(table: string, id: string, payload: Record<string, unknown>) {
   const supabase = createAdminSupabaseClient();
   const { error } = await supabase.from(table).update(payload).eq("id", id);
@@ -198,6 +254,16 @@ function toNumber(value: FormDataEntryValue | null) {
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
+function toNullableNumber(value: FormDataEntryValue | null) {
+  const text = String(value ?? "").trim();
+  if (!text) {
+    return null;
+  }
+
+  const parsed = Number(text);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
 function nullableString(value: FormDataEntryValue | null) {
   const text = String(value ?? "").trim();
   return text.length > 0 ? text : null;
@@ -213,4 +279,11 @@ function questType(value: FormDataEntryValue | null): QuestType {
   ];
   const normalized = String(value ?? "");
   return allowed.includes(normalized as QuestType) ? (normalized as QuestType) : "area_tip";
+}
+
+function specialtyList(formData: FormData) {
+  return formData
+    .getAll("specialties")
+    .map((value) => String(value))
+    .filter(Boolean);
 }

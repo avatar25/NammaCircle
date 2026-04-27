@@ -194,3 +194,19 @@ struct Mentor: Identifiable {
     let hourlyRateInr: Int?
     let isVerified: Bool
 }
+
+enum MentorBookingStatus: String {
+    case pending
+    case accepted
+    case completed
+    case cancelled
+
+    var title: String {
+        switch self {
+        case .pending: return "Pending"
+        case .accepted: return "Accepted"
+        case .completed: return "Completed"
+        case .cancelled: return "Cancelled"
+        }
+    }
+}

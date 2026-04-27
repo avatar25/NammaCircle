@@ -68,17 +68,23 @@ Approved quest submissions write to `points_ledger`. Daily quests allow only one
 ### Mentor
 
 - `id`
-- `name`
-- `locality`
+- `user_id`
+- `display_name`
 - `bio`
-- `status`
+- `specialties`
+- `hourly_rate_inr`
+- `is_verified`
 
 ### Mentor Booking
 
 - `id`
 - `mentor_id`
-- `requester_note`
+- `user_id`
+- `topic`
+- `preferred_time_text`
 - `status`
+
+Booking statuses are `pending`, `accepted`, `completed`, and `cancelled`. Payments are not modeled in the MVP.
 
 ## Deferred Entities
 

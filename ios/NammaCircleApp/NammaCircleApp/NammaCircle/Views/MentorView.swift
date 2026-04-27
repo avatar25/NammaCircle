@@ -26,7 +26,7 @@ struct MentorView: View {
                     NavigationLink {
                         MentorDetailView(mentor: mentor, viewModel: viewModel)
                     } label: {
-                        MentorCard(mentor: mentor)
+                        MentorCard(mentor: mentor, status: viewModel.status(for: mentor))
                     }
                     .buttonStyle(.plain)
                 }
@@ -47,6 +47,7 @@ struct MentorView: View {
 
 struct MentorCard: View {
     let mentor: Mentor
+    let status: MentorBookingStatus?
 
     var body: some View {
         SectionCard(tone: .sky) {
@@ -68,6 +69,9 @@ struct MentorCard: View {
                         .lineLimit(2)
                         .foregroundStyle(NammaColor.muted)
                     NammaBadge(text: mentor.specialties.joined(separator: ", "), systemImage: "leaf.fill", tone: NammaColor.teal)
+                    if let status {
+                        NammaBadge(text: status.title, systemImage: "clock.fill", tone: statusTint(status))
+                    }
                 }
                 Spacer()
             }
@@ -98,7 +102,12 @@ struct MentorDetailView: View {
                         Text(mentor.bio)
                             .foregroundStyle(NammaColor.muted)
                         NammaBadge(text: mentor.specialties.joined(separator: ", "), systemImage: "leaf.fill", tone: NammaColor.teal)
-                        Text("Booking is a placeholder. Payments are not implemented.")
+                        if let rate = mentor.hourlyRateInr {
+                            Text("INR \(rate)/hour")
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundStyle(NammaColor.ink)
+                        }
+                        Text("Payments are not implemented.")
                             .font(.caption)
                             .foregroundStyle(NammaColor.muted)
                     }
@@ -111,11 +120,18 @@ struct MentorDetailView: View {
                             .foregroundStyle(NammaColor.ink)
                         TextField("Topic", text: $viewModel.bookingTopic)
                             .textFieldStyle(.roundedBorder)
-                        Button(viewModel.requestedMentorIDs.contains(mentor.id) ? "Requested" : "Request mentor help") {
+                        TextField("Preferred time", text: $viewModel.preferredTimeText)
+                            .textFieldStyle(.roundedBorder)
+                        if let status = viewModel.status(for: mentor) {
+                            Label(status.title, systemImage: "clock.fill")
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundStyle(statusTint(status))
+                        }
+                        Button(viewModel.status(for: mentor) == nil ? "Request mentor help" : "Request pending") {
                             viewModel.requestBooking(for: mentor)
                         }
                         .buttonStyle(NammaPrimaryButtonStyle())
-                        .disabled(viewModel.bookingTopic.isEmpty || viewModel.requestedMentorIDs.contains(mentor.id))
+                        .disabled(!viewModel.canRequest(mentor))
                     }
                 }
             }
@@ -126,5 +142,14 @@ struct MentorDetailView: View {
         .navigationTitle("Mentor")
         .navigationBarTitleDisplayMode(.inline)
         .tint(NammaColor.deepGreen)
+    }
+}
+
+private func statusTint(_ status: MentorBookingStatus) -> Color {
+    switch status {
+    case .pending: return NammaColor.saffron
+    case .accepted: return NammaColor.deepGreen
+    case .completed: return NammaColor.teal
+    case .cancelled: return NammaColor.rose
     }
 }

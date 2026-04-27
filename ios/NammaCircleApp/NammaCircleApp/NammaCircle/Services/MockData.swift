@@ -54,8 +54,8 @@ enum MockData {
     ]
 
     static let mentors = [
-        Mentor(id: UUID(), displayName: "Asha Rao", bio: "Helps newcomers compare south-east Bengaluru localities.", specialties: ["Rent", "HSR", "Bellandur"], hourlyRateInr: nil, isVerified: true),
-        Mentor(id: UUID(), displayName: "Kiran M", bio: "Kannada basics and practical city navigation.", specialties: ["Kannada", "Transport"], hourlyRateInr: nil, isVerified: true)
+        Mentor(id: UUID(), displayName: "Asha Rao", bio: "Helps newcomers compare south-east Bengaluru localities.", specialties: ["Area selection", "Rent negotiation"], hourlyRateInr: 700, isVerified: true),
+        Mentor(id: UUID(), displayName: "Kiran M", bio: "Kannada basics and practical city navigation.", specialties: ["Kannada basics", "Cost reduction"], hourlyRateInr: 500, isVerified: true)
     ]
 
     private static func locality(
