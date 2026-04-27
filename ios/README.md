@@ -34,6 +34,17 @@ NammaCircle/
 - `QuestsView`: quest list, detail, text/photo placeholder submission
 - `MentorView`: mentor list and booking request placeholder
 
+## Visual Direction
+
+The iOS MVP now uses a warm Bengaluru-local aesthetic inspired by illustrated neighborhood guide apps:
+
+- Cream and warm-sand screen backgrounds with deep green primary actions
+- Saffron, terracotta, rose, teal, and leaf accents for scores, quests, lessons, and community surfaces
+- Soft rounded cards, capsule badges, progress bars, and map markers from `Views/Components/DesignSystem.swift`
+- Lightweight SwiftUI illustration primitives for skyline, auto, foliage, lesson, rent, community, and quest moments
+
+Keep new user-facing screens aligned with these primitives before adding one-off colors or custom card styles.
+
 ## Xcode Setup
 
 1. Open Xcode.
