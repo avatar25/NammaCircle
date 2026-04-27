@@ -11,7 +11,7 @@ final class MockKannadaService: KannadaServicing {
     }
 
     func completeLesson(_ lesson: KannadaLesson, currentStreak: Int) async throws -> Int {
-        currentStreak + 1
+        currentStreak
     }
 }
 
@@ -66,6 +66,6 @@ final class SupabaseKannadaService: KannadaServicing {
     }
 
     func completeLesson(_ lesson: KannadaLesson, currentStreak: Int) async throws -> Int {
-        currentStreak + 1
+        currentStreak
     }
 }

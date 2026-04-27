@@ -77,3 +77,61 @@ AI is not used to rank areas. Later, AI may generate friendlier explanations fro
 - `green`: score >= 75.
 - `yellow`: score >= 55 and < 75.
 - `red`: score < 55.
+
+## Rewards, Streaks, And Points
+
+`POST /functions/v1/rewards`
+
+Awards deterministic points, updates streaks where applicable, and returns progress derived from `points_ledger`.
+
+### Request
+
+```json
+{
+  "action": "complete_kannada_lesson",
+  "source_id": "uuid"
+}
+```
+
+Supported actions:
+
+- `summary`: returns progress without awarding points.
+- `complete_kannada_lesson`: +10 points once per lesson and increments streak once per calendar day.
+- `complete_daily_quest`: awards `quests.points` once per quest and increments streak once per calendar day.
+- `answer_forum_question`: +5 points once per comment.
+- `accept_forum_answer`: +25 points once per accepted comment.
+
+### Response
+
+```json
+{
+  "awarded": true,
+  "duplicate": false,
+  "event_type": "kannada_lesson_completed",
+  "points_delta": 10,
+  "total_points": 110,
+  "current_rank": "Settler",
+  "next_rank": "Street Smart",
+  "points_to_next_rank": 390,
+  "current_streak": 3,
+  "longest_streak": 5,
+  "last_activity_date": "2026-04-27"
+}
+```
+
+### Rules
+
+- Never mutate a stored total-points field.
+- Insert one `points_ledger` row per points event.
+- Derive total points from non-reversed `points_ledger` rows.
+- Prevent duplicate active rewards with unique `(user_id, source_type, source_id)` ledger entries.
+- Streaks update only for Kannada lesson completion and daily quest completion.
+
+Ranks:
+
+- `Newcomer`: 0
+- `Settler`: 100
+- `Street Smart`: 500
+- `Area Scout`: 1500
+- `Local Guide`: 5000
+- `City Sage`: 15000

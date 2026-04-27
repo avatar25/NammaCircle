@@ -73,12 +73,19 @@ final class SupabaseClientProvider {
 
     func invokeFunction<RequestBody: Encodable, ResponseBody: Decodable>(
         _ name: String,
-        body: RequestBody
+        body: RequestBody,
+        authenticated: Bool = false
     ) async throws -> ResponseBody {
         var request = try makeRequest(path: "/functions/v1/\(name)")
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try JSONEncoder.supabase.encode(body)
+
+        if authenticated {
+            let session = try await anonymousAuthSession()
+            request.setValue("Bearer \(session.accessToken)", forHTTPHeaderField: "Authorization")
+        }
+
         return try await perform(request)
     }
 

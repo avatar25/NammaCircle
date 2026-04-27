@@ -87,6 +87,47 @@ struct RentCheckResult {
     let depositWarning: String?
 }
 
+struct UserProgress {
+    let currentStreak: Int
+    let longestStreak: Int
+    let totalPoints: Int
+    let currentRank: RankName
+    let nextRank: RankName?
+    let pointsToNextRank: Int?
+}
+
+enum RankName: String, CaseIterable {
+    case newcomer = "Newcomer"
+    case settler = "Settler"
+    case streetSmart = "Street Smart"
+    case areaScout = "Area Scout"
+    case localGuide = "Local Guide"
+    case citySage = "City Sage"
+
+    static func rank(for points: Int) -> RankName {
+        switch points {
+        case 15_000...: return .citySage
+        case 5_000...: return .localGuide
+        case 1_500...: return .areaScout
+        case 500...: return .streetSmart
+        case 100...: return .settler
+        default: return .newcomer
+        }
+    }
+
+    static func nextRank(after points: Int) -> (rank: RankName, threshold: Int)? {
+        let thresholds: [(RankName, Int)] = [
+            (.settler, 100),
+            (.streetSmart, 500),
+            (.areaScout, 1_500),
+            (.localGuide, 5_000),
+            (.citySage, 15_000)
+        ]
+
+        return thresholds.first { points < $0.1 }
+    }
+}
+
 struct KannadaLesson: Identifiable {
     let id: UUID
     let title: String

@@ -4,6 +4,7 @@ final class ServiceFactory {
     static let shared = ServiceFactory()
 
     private let provider = SupabaseClientProvider.shared
+    private lazy var mockProgressService = MockProgressService()
 
     var localityService: LocalityServicing {
         AppConfiguration.isMockMode ? MockLocalityService() : SupabaseLocalityService(provider: provider)
@@ -27,5 +28,9 @@ final class ServiceFactory {
 
     var mentorService: MentorServicing {
         AppConfiguration.isMockMode ? MockMentorService() : SupabaseMentorService(provider: provider)
+    }
+
+    var progressService: ProgressServicing {
+        AppConfiguration.isMockMode ? mockProgressService : SupabaseProgressService(provider: provider)
     }
 }

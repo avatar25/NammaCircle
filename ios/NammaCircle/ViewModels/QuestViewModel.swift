@@ -9,9 +9,14 @@ final class QuestViewModel: ObservableObject {
     @Published var errorMessage: String?
 
     private let service: QuestServicing
+    private let progressService: ProgressServicing
 
-    init(service: QuestServicing = ServiceFactory.shared.questService) {
+    init(
+        service: QuestServicing = ServiceFactory.shared.questService,
+        progressService: ProgressServicing = ServiceFactory.shared.progressService
+    ) {
         self.service = service
+        self.progressService = progressService
     }
 
     func load() {
@@ -34,6 +39,7 @@ final class QuestViewModel: ObservableObject {
 
             do {
                 try await service.submitQuest(quest, text: submissionText)
+                _ = try await progressService.awardQuestCompletion(questID: quest.id, points: quest.points)
                 submittedQuestIDs.insert(quest.id)
                 submissionText = ""
             } catch {

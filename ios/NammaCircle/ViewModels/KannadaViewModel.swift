@@ -8,9 +8,14 @@ final class KannadaViewModel: ObservableObject {
     @Published var errorMessage: String?
 
     private let service: KannadaServicing
+    private let progressService: ProgressServicing
 
-    init(service: KannadaServicing = ServiceFactory.shared.kannadaService) {
+    init(
+        service: KannadaServicing = ServiceFactory.shared.kannadaService,
+        progressService: ProgressServicing = ServiceFactory.shared.progressService
+    ) {
         self.service = service
+        self.progressService = progressService
     }
 
     func load() {
@@ -34,9 +39,10 @@ final class KannadaViewModel: ObservableObject {
             errorMessage = nil
 
             do {
-                let streak = try await service.completeLesson(lesson, currentStreak: currentStreak)
+                _ = try await service.completeLesson(lesson, currentStreak: currentStreak)
+                let progress = try await progressService.awardKannadaLessonCompletion(lessonID: lesson.id)
                 isCompleted = true
-                onStreakUpdated(streak)
+                onStreakUpdated(progress.currentStreak)
             } catch {
                 errorMessage = error.localizedDescription
             }

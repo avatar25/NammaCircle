@@ -110,6 +110,23 @@ struct SupabaseForumPostInsert: Encodable {
     let moderationStatus: String
 }
 
+struct SupabaseRewardRequest: Encodable {
+    let action: String
+    let sourceId: UUID?
+}
+
+struct SupabaseRewardResponse: Decodable {
+    let awarded: Bool?
+    let duplicate: Bool?
+    let totalPoints: Int
+    let currentRank: String
+    let nextRank: String?
+    let pointsToNextRank: Int?
+    let currentStreak: Int
+    let longestStreak: Int
+    let lastActivityDate: String?
+}
+
 enum KnownLocalityCoordinates {
     static func coordinate(for slug: String) -> CLLocationCoordinate2D {
         switch slug {

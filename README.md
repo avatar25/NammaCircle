@@ -103,6 +103,7 @@ Run edge-function logic tests with Deno:
 ```sh
 deno test supabase/edge-functions/rent-check/rentFairness.test.ts
 deno test supabase/edge-functions/area-recommendations/areaRecommendations.test.ts
+deno test supabase/edge-functions/rewards/rewardLogic.test.ts
 ```
 
 ## Key Docs

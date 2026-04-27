@@ -5,6 +5,7 @@ struct HomeView: View {
     @StateObject private var localityVM = LocalityViewModel()
     @StateObject private var kannadaVM = KannadaViewModel()
     @StateObject private var questVM = QuestViewModel()
+    @StateObject private var progressVM = ProgressViewModel()
 
     var body: some View {
         ScrollView {
@@ -14,13 +15,15 @@ struct HomeView: View {
                 Text("Your Bangalore survival snapshot for today.")
                     .foregroundStyle(.secondary)
 
-                if let errorMessage = localityVM.errorMessage ?? kannadaVM.errorMessage ?? questVM.errorMessage {
+                if let errorMessage = localityVM.errorMessage ?? kannadaVM.errorMessage ?? questVM.errorMessage ?? progressVM.errorMessage {
                     ErrorBanner(message: errorMessage)
                 }
 
-                if localityVM.isLoading || kannadaVM.isLoading || questVM.isLoading {
+                if localityVM.isLoading || kannadaVM.isLoading || questVM.isLoading || progressVM.isLoading {
                     LoadingStateView(message: "Loading today’s snapshot")
                 }
+
+                ProgressSummaryCard(progress: progressVM.progress)
 
                 if let lesson = kannadaVM.lesson {
                     NavigationLink {
@@ -100,6 +103,45 @@ struct HomeView: View {
             localityVM.load(preferences: appState.onboarding)
             kannadaVM.load()
             questVM.load()
+            progressVM.load()
+        }
+    }
+}
+
+struct ProgressSummaryCard: View {
+    let progress: UserProgress
+
+    var body: some View {
+        SectionCard {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Your progress")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        Text(progress.currentRank.rawValue)
+                            .font(.title3.bold())
+                    }
+                    Spacer()
+                    Text("\(progress.totalPoints) pts")
+                        .font(.headline)
+                }
+
+                HStack(spacing: 12) {
+                    Label("\(progress.currentStreak) day streak", systemImage: "flame")
+                    Spacer()
+                    if let nextRank = progress.nextRank, let points = progress.pointsToNextRank {
+                        Text("\(points) pts to \(nextRank.rawValue)")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    } else {
+                        Text("Top rank")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                .font(.subheadline)
+            }
         }
     }
 }
