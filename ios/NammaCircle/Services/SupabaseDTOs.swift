@@ -110,6 +110,24 @@ struct SupabaseForumPostInsert: Encodable {
     let moderationStatus: String
 }
 
+struct SupabaseModerationReportInsert: Encodable {
+    let reporterId: UUID
+    let targetType: String
+    let targetId: UUID
+    let reason: String
+    let status: String
+}
+
+struct SupabaseModerationReportRow: Decodable {
+    let id: UUID
+    let reporterId: UUID?
+    let targetType: String
+    let targetId: UUID
+    let reason: String
+    let status: String
+    let createdAt: Date?
+}
+
 struct SupabaseRewardRequest: Encodable {
     let action: String
     let sourceId: UUID?

@@ -4,6 +4,8 @@ protocol ForumServicing {
     func fetchPosts() async throws -> [ForumPost]
     func createPost(title: String, body: String, category: String) async throws
     func addComment(postID: UUID, body: String) async throws
+    func reportPost(postID: UUID, reason: String) async throws
+    func reportComment(commentID: UUID, reason: String) async throws
 }
 
 final class MockForumService: ForumServicing {
@@ -14,23 +16,17 @@ final class MockForumService: ForumServicing {
     }
 
     func createPost(title: String, body: String, category: String) async throws {
-        posts.insert(
-            ForumPost(
-                id: UUID(),
-                title: title,
-                body: body,
-                category: category,
-                urgency: "normal",
-                localityName: nil,
-                comments: []
-            ),
-            at: 0
-        )
+        // Mock mode mirrors production moderation: new posts wait for review
+        // instead of becoming visible immediately.
     }
 
     func addComment(postID: UUID, body: String) async throws {
         // TODO: mutate local mock store when moving beyond screen skeleton.
     }
+
+    func reportPost(postID: UUID, reason: String) async throws {}
+
+    func reportComment(commentID: UUID, reason: String) async throws {}
 }
 
 final class SupabaseForumService: ForumServicing {
@@ -45,7 +41,7 @@ final class SupabaseForumService: ForumServicing {
             "forum_posts",
             queryItems: [
                 URLQueryItem(name: "select", value: "id,user_id,locality_id,title,body,category,urgency,moderation_status,created_at"),
-                URLQueryItem(name: "moderation_status", value: "eq.visible"),
+                URLQueryItem(name: "moderation_status", value: "in.(approved,visible)"),
                 URLQueryItem(name: "order", value: "created_at.desc"),
                 URLQueryItem(name: "limit", value: "50")
             ]
@@ -54,7 +50,7 @@ final class SupabaseForumService: ForumServicing {
             "forum_comments",
             queryItems: [
                 URLQueryItem(name: "select", value: "id,post_id,user_id,body,moderation_status,created_at"),
-                URLQueryItem(name: "moderation_status", value: "eq.visible"),
+                URLQueryItem(name: "moderation_status", value: "in.(approved,visible)"),
                 URLQueryItem(name: "order", value: "created_at.asc"),
                 URLQueryItem(name: "limit", value: "100")
             ]
@@ -84,7 +80,7 @@ final class SupabaseForumService: ForumServicing {
             body: body,
             category: category,
             urgency: "normal",
-            moderationStatus: "visible"
+            moderationStatus: "pending"
         )
         let _: [SupabaseForumPostRow] = try await provider.insert(
             into: "forum_posts",
@@ -96,5 +92,29 @@ final class SupabaseForumService: ForumServicing {
     func addComment(postID: UUID, body: String) async throws {
         // TODO: insert forum_comments once auth exists.
         throw ServicePlaceholderError.notImplemented
+    }
+
+    func reportPost(postID: UUID, reason: String) async throws {
+        try await createReport(targetType: "forum_post", targetId: postID, reason: reason)
+    }
+
+    func reportComment(commentID: UUID, reason: String) async throws {
+        try await createReport(targetType: "forum_comment", targetId: commentID, reason: reason)
+    }
+
+    private func createReport(targetType: String, targetId: UUID, reason: String) async throws {
+        let session = try await provider.authenticatedSessionForWrite()
+        let payload = SupabaseModerationReportInsert(
+            reporterId: session.userID,
+            targetType: targetType,
+            targetId: targetId,
+            reason: reason,
+            status: "open"
+        )
+        let _: [SupabaseModerationReportRow] = try await provider.insert(
+            into: "moderation_reports",
+            payload: payload,
+            authenticated: true
+        )
     }
 }

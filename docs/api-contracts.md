@@ -135,3 +135,64 @@ Ranks:
 - `Area Scout`: 1500
 - `Local Guide`: 5000
 - `City Sage`: 15000
+
+## Forum Moderation
+
+Forum moderation is deterministic and database-backed in the MVP. No AI moderation is used.
+
+### Create Forum Post
+
+`POST /rest/v1/forum_posts`
+
+Authenticated users can create their own posts. iOS currently uses anonymous Supabase auth in development mode.
+
+```json
+{
+  "user_id": "auth-user-uuid",
+  "title": "Whitefield deposit norms for 1BHK?",
+  "body": "Seeing 5 to 10 month deposits depending on the building.",
+  "category": "rent",
+  "urgency": "normal",
+  "moderation_status": "pending"
+}
+```
+
+New posts are not visible until an admin approves them.
+
+### Read Forum Posts
+
+`GET /rest/v1/forum_posts?moderation_status=in.(approved,visible)`
+
+The iOS app reads only `approved` posts and legacy seeded `visible` posts. Rejected, pending, hidden, or removed content should not be shown.
+
+### Report Content
+
+`POST /rest/v1/moderation_reports`
+
+```json
+{
+  "reporter_id": "auth-user-uuid",
+  "target_type": "forum_post",
+  "target_id": "post-or-comment-uuid",
+  "reason": "User reported from iOS",
+  "status": "open"
+}
+```
+
+Allowed MVP target types are `forum_post` and `forum_comment`.
+
+### Admin Review
+
+Admin approve/reject actions update `forum_posts.moderation_status` or `forum_comments.moderation_status`, then insert a row into `moderation_actions`.
+
+```json
+{
+  "admin_user_id": null,
+  "target_type": "forum_post",
+  "target_id": "post-uuid",
+  "action": "approve",
+  "notes": "Set forum post status to approved."
+}
+```
+
+`admin_user_id` is temporarily nullable until production admin auth is implemented.

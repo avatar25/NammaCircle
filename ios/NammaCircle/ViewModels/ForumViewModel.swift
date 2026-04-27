@@ -9,6 +9,8 @@ final class ForumViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var isSaving = false
     @Published var errorMessage: String?
+    @Published var submissionMessage: String?
+    @Published var reportMessage: String?
 
     private let service: ForumServicing
 
@@ -34,6 +36,7 @@ final class ForumViewModel: ObservableObject {
         Task {
             isSaving = true
             errorMessage = nil
+            submissionMessage = nil
             defer { isSaving = false }
 
             do {
@@ -41,6 +44,35 @@ final class ForumViewModel: ObservableObject {
                 posts = try await service.fetchPosts()
                 draftTitle = ""
                 draftBody = ""
+                submissionMessage = "Submitted for review."
+            } catch {
+                errorMessage = error.localizedDescription
+            }
+        }
+    }
+
+    func reportPost(_ post: ForumPost) {
+        Task {
+            errorMessage = nil
+            reportMessage = nil
+
+            do {
+                try await service.reportPost(postID: post.id, reason: "User reported from iOS")
+                reportMessage = "Report submitted for review."
+            } catch {
+                errorMessage = error.localizedDescription
+            }
+        }
+    }
+
+    func reportComment(_ comment: ForumComment) {
+        Task {
+            errorMessage = nil
+            reportMessage = nil
+
+            do {
+                try await service.reportComment(commentID: comment.id, reason: "User reported from iOS")
+                reportMessage = "Report submitted for review."
             } catch {
                 errorMessage = error.localizedDescription
             }

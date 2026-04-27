@@ -10,6 +10,20 @@ struct ForumView: View {
                 ErrorBanner(message: errorMessage)
             }
 
+            if let submissionMessage = viewModel.submissionMessage {
+                Section {
+                    Label(submissionMessage, systemImage: "checkmark.circle.fill")
+                        .foregroundStyle(.green)
+                }
+            }
+
+            if let reportMessage = viewModel.reportMessage {
+                Section {
+                    Label(reportMessage, systemImage: "flag.fill")
+                        .foregroundStyle(.orange)
+                }
+            }
+
             Section {
                 Button {
                     isCreating = true
@@ -26,7 +40,7 @@ struct ForumView: View {
                 } else {
                     ForEach(viewModel.posts) { post in
                         NavigationLink {
-                            ForumPostDetailView(post: post)
+                            ForumPostDetailView(post: post, viewModel: viewModel)
                         } label: {
                             VStack(alignment: .leading, spacing: 6) {
                                 Text(post.title).font(.headline)
@@ -89,6 +103,7 @@ struct CreatePostView: View {
 
 struct ForumPostDetailView: View {
     let post: ForumPost
+    @ObservedObject var viewModel: ForumViewModel
     @State private var draftComment = ""
 
     var body: some View {
@@ -100,6 +115,12 @@ struct ForumPostDetailView: View {
                     Text("\(post.category) / \(post.urgency)")
                         .font(.caption)
                         .foregroundStyle(.secondary)
+                    Button(role: .destructive) {
+                        viewModel.reportPost(post)
+                    } label: {
+                        Label("Report post", systemImage: "flag")
+                    }
+                    .buttonStyle(.borderless)
                 }
             }
 
@@ -108,6 +129,13 @@ struct ForumPostDetailView: View {
                     VStack(alignment: .leading, spacing: 4) {
                         Text(comment.authorName).font(.caption.bold())
                         Text(comment.body)
+                        Button(role: .destructive) {
+                            viewModel.reportComment(comment)
+                        } label: {
+                            Label("Report", systemImage: "flag")
+                                .font(.caption)
+                        }
+                        .buttonStyle(.borderless)
                     }
                 }
                 HStack {

@@ -8,7 +8,12 @@ const cards = [
   {
     key: "pendingForumPosts",
     label: "Pending forum posts",
-    hint: "Flagged or hidden posts needing review"
+    hint: "New, flagged, or hidden posts needing review"
+  },
+  {
+    key: "openReports",
+    label: "Open reports",
+    hint: "User reports on posts and comments"
   },
   {
     key: "pendingQuestSubmissions",
@@ -36,11 +41,13 @@ export default async function DashboardPage() {
   const supabase = createAdminSupabaseClient();
   const [
     forumPosts,
+    openReports,
     questSubmissions,
     rentReports,
     localityScores
   ] = await Promise.all([
-    countRows(supabase, "forum_posts", "moderation_status", ["flagged", "hidden"]),
+    countRows(supabase, "forum_posts", "moderation_status", ["pending", "flagged", "hidden"]),
+    countRows(supabase, "moderation_reports", "status", ["open", "reviewing"]),
     countRows(supabase, "quest_submissions", "verification_status", ["pending"]),
     countRows(supabase, "rent_reports", "moderation_status", ["pending", "flagged"]),
     countLocalitiesNeedingVerification(supabase)
@@ -48,6 +55,7 @@ export default async function DashboardPage() {
 
   const values = {
     pendingForumPosts: forumPosts,
+    openReports,
     pendingQuestSubmissions: questSubmissions,
     pendingRentReports: rentReports,
     localitiesNeedingVerification: localityScores,

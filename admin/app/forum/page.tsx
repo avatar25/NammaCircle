@@ -8,16 +8,21 @@ export const dynamic = "force-dynamic";
 
 export default async function ForumPage() {
   const supabase = createAdminSupabaseClient();
-  const [postsResult, commentsResult] = await Promise.all([
+  const [postsResult, commentsResult, reportsResult] = await Promise.all([
     supabase
       .from("forum_posts")
       .select("id, title, body, category, urgency, moderation_status, created_at, localities(name)")
-      .in("moderation_status", ["flagged", "hidden"])
+      .in("moderation_status", ["pending", "flagged", "hidden"])
       .order("created_at", { ascending: false }),
     supabase
       .from("forum_comments")
       .select("id, body, moderation_status, created_at, forum_posts(title)")
-      .in("moderation_status", ["flagged", "hidden"])
+      .in("moderation_status", ["pending", "flagged", "hidden"])
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("moderation_reports")
+      .select("id, target_type, target_id, reason, status, created_at, reporter_id")
+      .in("status", ["open", "reviewing"])
       .order("created_at", { ascending: false })
   ]);
 
@@ -25,15 +30,21 @@ export default async function ForumPage() {
     <AdminShell>
       <PageHeader
         title="Forum Moderation"
-        description="Review posts and comments that need moderation. Approved posts/comments become visible again."
+        description="Review pending and reported forum content. Approved posts/comments become visible in the iOS app."
       />
-      <ModerationTable
-        action={moderateForumPost}
-        error={postsResult.error?.message}
-        rows={(postsResult.data ?? []) as Record<string, unknown>[]}
-        title="Posts needing review"
-        type="post"
+      <ReportsTable
+        error={reportsResult.error?.message}
+        rows={(reportsResult.data ?? []) as Record<string, unknown>[]}
       />
+      <div className="mt-8">
+        <ModerationTable
+          action={moderateForumPost}
+          error={postsResult.error?.message}
+          rows={(postsResult.data ?? []) as Record<string, unknown>[]}
+          title="Posts needing review"
+          type="post"
+        />
+      </div>
       <div className="mt-8">
         <ModerationTable
           action={moderateForumComment}
@@ -44,6 +55,47 @@ export default async function ForumPage() {
         />
       </div>
     </AdminShell>
+  );
+}
+
+function ReportsTable({ rows, error }: { rows: Record<string, unknown>[]; error?: string }) {
+  return (
+    <section>
+      <h2 className="mb-3 text-lg font-semibold">Open reports</h2>
+      {error ? <p className="mb-4 rounded-md bg-red-50 p-3 text-sm text-red-700">{error}</p> : null}
+      <div className="overflow-hidden rounded-lg border border-stone-200 bg-white shadow-sm">
+        <table className="min-w-full divide-y divide-stone-200 text-sm">
+          <thead className="bg-stone-100 text-left text-xs uppercase text-neutral-500">
+            <tr>
+              <th className="px-4 py-3">Target</th>
+              <th className="px-4 py-3">Reason</th>
+              <th className="px-4 py-3">Status</th>
+              <th className="px-4 py-3">Created</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-stone-200">
+            {rows.map((row) => (
+              <tr className="align-top" key={String(row.id)}>
+                <td className="px-4 py-4">
+                  <p className="font-medium text-neutral-950">{String(row.target_type ?? "-")}</p>
+                  <p className="mt-1 font-mono text-xs text-neutral-500">{String(row.target_id ?? "-")}</p>
+                </td>
+                <td className="max-w-xl px-4 py-4 text-neutral-700">{String(row.reason ?? "-")}</td>
+                <td className="px-4 py-4">{String(row.status ?? "-")}</td>
+                <td className="px-4 py-4 text-neutral-600">{formatDate(row.created_at)}</td>
+              </tr>
+            ))}
+            {rows.length === 0 ? (
+              <tr>
+                <td className="px-4 py-6 text-sm text-neutral-500" colSpan={4}>
+                  No open reports.
+                </td>
+              </tr>
+            ) : null}
+          </tbody>
+        </table>
+      </div>
+    </section>
   );
 }
 
@@ -90,8 +142,8 @@ function ModerationTable({
                 </td>
                 <td className="px-4 py-4">{String(row.moderation_status ?? "-")}</td>
                 <td className="flex gap-2 px-4 py-4">
-                  <StatusButton action={action} id={String(row.id)} label="Approve" status="visible" />
-                  <StatusButton action={action} id={String(row.id)} label="Reject" status="removed" />
+                  <StatusButton action={action} id={String(row.id)} label="Approve" status="approved" />
+                  <StatusButton action={action} id={String(row.id)} label="Reject" status="rejected" />
                 </td>
               </tr>
             ))}
@@ -119,4 +171,15 @@ function relatedTitle(value: unknown) {
   }
 
   return "-";
+}
+
+function formatDate(value: unknown) {
+  if (typeof value !== "string") {
+    return "-";
+  }
+
+  return new Intl.DateTimeFormat("en-IN", {
+    dateStyle: "medium",
+    timeStyle: "short"
+  }).format(new Date(value));
 }

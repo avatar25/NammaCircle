@@ -28,7 +28,7 @@ This repo is a monorepo for the MVP: SwiftUI iOS app, Next.js admin dashboard, S
 - Forum posts and comments
 - Quests and points
 - Mentor profiles and booking requests
-- Admin moderation dashboard
+- Admin moderation dashboard with pending forum review, user reports, and moderation action logs
 
 Not in scope yet:
 
@@ -104,6 +104,7 @@ Run edge-function logic tests with Deno:
 deno test supabase/edge-functions/rent-check/rentFairness.test.ts
 deno test supabase/edge-functions/area-recommendations/areaRecommendations.test.ts
 deno test supabase/edge-functions/rewards/rewardLogic.test.ts
+deno test supabase/edge-functions/moderation/moderationRules.test.ts
 ```
 
 ## Key Docs
@@ -112,6 +113,7 @@ deno test supabase/edge-functions/rewards/rewardLogic.test.ts
 - [Architecture](docs/architecture.md)
 - [Data model](docs/data-model.md)
 - [API contracts](docs/api-contracts.md)
+- [Trust and safety](docs/trust-and-safety.md)
 - [Agent guidelines](AGENTS.md)
 
 ## Data And Trust

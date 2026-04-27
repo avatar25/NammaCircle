@@ -30,7 +30,7 @@ NammaCircle/
 - `LocalityDetailView`: scores, risks, rent estimate placeholder, recent signals placeholder
 - `RentCheckView`: rent/deposit form with mock deterministic result
 - `KannadaLessonView`: phrase card, usage note, local streak update
-- `ForumView`: posts, create post sheet, post detail with comments
+- `ForumView`: approved posts, create post sheet, post detail with comments, and report buttons
 - `QuestsView`: quest list, detail, text/photo placeholder submission
 - `MentorView`: mentor list and booking request placeholder
 
@@ -84,12 +84,14 @@ Supabase service classes now read:
 - `localities`
 - `locality_scores`
 - published `kannada_lessons` and `kannada_phrases`
-- visible forum posts/comments
+- approved and legacy visible forum posts/comments
 - active quests
 - verified mentors
 
 `RentCheckService` calls the `rent-check` edge function and falls back to local deterministic logic if the endpoint is unavailable.
 
-Forum post creation uses anonymous Supabase auth when the Supabase Swift package is linked and Anonymous Sign-Ins are enabled in Supabase. Full production auth is intentionally not implemented yet.
+Forum post creation uses anonymous Supabase auth when the Supabase Swift package is linked and Anonymous Sign-Ins are enabled in Supabase. New posts are submitted as `pending`, the UI shows "Submitted for review.", and only `approved` or legacy `visible` posts/comments are fetched. Report buttons insert rows into `moderation_reports`.
+
+Full production auth is intentionally not implemented yet.
 
 Do not add payments or real AI until the MVP data flows are validated.

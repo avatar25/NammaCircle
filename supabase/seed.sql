@@ -182,7 +182,7 @@ select
   seed.body,
   seed.category,
   'normal',
-  'visible'
+  'approved'
 from (
   values
     ('hsr-layout', 'Is HSR good for a first month in Bengaluru?', 'I work near Bellandur and want cafes, gyms, and manageable commute. Is HSR a good first area?', 'locality'),

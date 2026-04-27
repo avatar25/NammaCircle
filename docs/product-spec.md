@@ -67,7 +67,7 @@ The MVP should support:
 - Creating posts.
 - Adding comments.
 - Reporting posts or comments.
-- Status labels for visible, hidden, flagged, and removed content.
+- Status labels for pending, approved, rejected, flagged, hidden, and legacy visible/removed content.
 - Admin moderation review before sensitive surfaced claims become trusted data.
 
 ### 5. Daily Quest And Points
@@ -168,7 +168,7 @@ Any future monetization must preserve trust, labeling, and user control.
 
 - Make it easy to report abusive, misleading, discriminatory, spam, or personally identifying content.
 - Default to human review for reports and sensitive locality/rent claims.
-- Use clear content statuses: `visible`, `flagged`, `hidden`, `removed`.
+- Use clear content statuses: `pending`, `approved`, `rejected`, `flagged`, `hidden`; keep legacy `visible`/`removed` readable during migration only.
 - Do not automatically convert forum anecdotes into locality or rent reference data.
 - Preserve enough audit context for admins to understand why content was changed.
 - Avoid public shaming, harassment, caste/religion/language discrimination, and broker spam.

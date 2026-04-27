@@ -45,17 +45,23 @@ export async function moderateRentReport(formData: FormData) {
 }
 
 export async function moderateForumPost(formData: FormData) {
-  await updateStatus("forum_posts", String(formData.get("id")), {
-    moderation_status: formData.get("status") as ModerationStatus
-  });
+  await moderateForumTarget(
+    "forum_posts",
+    "forum_post",
+    String(formData.get("id")),
+    formData.get("status") as ModerationStatus
+  );
   revalidatePath("/forum");
   revalidatePath("/dashboard");
 }
 
 export async function moderateForumComment(formData: FormData) {
-  await updateStatus("forum_comments", String(formData.get("id")), {
-    moderation_status: formData.get("status") as ModerationStatus
-  });
+  await moderateForumTarget(
+    "forum_comments",
+    "forum_comment",
+    String(formData.get("id")),
+    formData.get("status") as ModerationStatus
+  );
   revalidatePath("/forum");
   revalidatePath("/dashboard");
 }
@@ -116,6 +122,35 @@ async function updateStatus(table: string, id: string, payload: Record<string, u
 
   if (error) {
     throw new Error(error.message);
+  }
+}
+
+async function moderateForumTarget(
+  table: "forum_posts" | "forum_comments",
+  targetType: "forum_post" | "forum_comment",
+  id: string,
+  status: ModerationStatus
+) {
+  const supabase = createAdminSupabaseClient();
+  const { error: updateError } = await supabase
+    .from(table)
+    .update({ moderation_status: status })
+    .eq("id", id);
+
+  if (updateError) {
+    throw new Error(updateError.message);
+  }
+
+  const { error: actionError } = await supabase.from("moderation_actions").insert({
+    admin_user_id: null,
+    target_type: targetType,
+    target_id: id,
+    action: status === "approved" || status === "visible" ? "approve" : "reject",
+    notes: `Set forum ${targetType === "forum_post" ? "post" : "comment"} status to ${status}.`
+  });
+
+  if (actionError) {
+    throw new Error(actionError.message);
   }
 }
 

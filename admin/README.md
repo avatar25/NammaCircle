@@ -4,7 +4,9 @@ Next.js + TypeScript + Tailwind dashboard for the NammaCircle MVP.
 
 ## MVP Admin Areas
 
-- Review and hide forum posts/comments
+- Review pending forum posts/comments
+- Inspect user reports on posts/comments
+- Log forum approve/reject actions in `moderation_actions`
 - Manage locality score metadata
 - Review mentor profiles
 - Track quest submissions
