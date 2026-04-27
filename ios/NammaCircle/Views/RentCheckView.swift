@@ -8,11 +8,22 @@ struct RentCheckView: View {
     private let furnishingOptions = ["unfurnished", "semi_furnished", "fully_furnished"]
 
     var body: some View {
-        ScrollView {
+        ScrollView(showsIndicators: false) {
             VStack(alignment: .leading, spacing: 16) {
-                SectionCard {
+                NammaScreenHeader(
+                    eyebrow: "Rent check",
+                    title: "Check fairness before you negotiate",
+                    subtitle: "Deterministic MVP guidance using locality baselines. Verify before making financial decisions.",
+                    systemImage: "indianrupeesign.circle.fill"
+                )
+
+                SectionCard(tone: .peach) {
                     VStack(alignment: .leading, spacing: 14) {
-                        Text("Rent fairness check").font(.title2.bold())
+                        BengaluruIllustrationView(scene: .rent)
+                            .frame(height: 148)
+                        Text("Rent details")
+                            .font(.title2.bold())
+                            .foregroundStyle(NammaColor.ink)
                         if let errorMessage = viewModel.errorMessage {
                             ErrorBanner(message: errorMessage)
                         }
@@ -44,35 +55,52 @@ struct RentCheckView: View {
                         Button(viewModel.isChecking ? "Checking..." : "Check rent") {
                             viewModel.checkRent()
                         }
-                        .buttonStyle(.borderedProminent)
+                        .buttonStyle(NammaPrimaryButtonStyle())
                     }
                 }
 
                 if let result = viewModel.result {
-                    SectionCard {
-                        VStack(alignment: .leading, spacing: 10) {
-                            Text(result.label.replacingOccurrences(of: "_", with: " ").capitalized)
-                                .font(.title2.bold())
-                            Text("Score \(result.score)")
-                                .foregroundStyle(.secondary)
+                    SectionCard(tone: .leaf) {
+                        VStack(alignment: .leading, spacing: 12) {
+                            HStack(alignment: .top) {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(result.label.replacingOccurrences(of: "_", with: " ").capitalized)
+                                        .font(.title2.bold())
+                                        .foregroundStyle(NammaColor.ink)
+                                    Text("Score \(result.score)")
+                                        .font(.subheadline)
+                                        .foregroundStyle(NammaColor.muted)
+                                }
+                                Spacer()
+                                NammaBadge(text: "Result", systemImage: "checkmark.seal.fill", tone: NammaColor.leaf)
+                            }
+                            NammaProgressBar(value: Double(result.score) / 100, tint: NammaColor.leaf)
                             Text(result.explanation)
+                                .font(.subheadline)
+                                .foregroundStyle(NammaColor.muted)
                             if let warning = result.depositWarning {
                                 Label(warning, systemImage: "exclamationmark.triangle")
-                                    .foregroundStyle(.orange)
+                                    .foregroundStyle(NammaColor.terracotta)
                             }
-                            Text("Negotiation points").font(.headline)
+                            Text("Negotiation points")
+                                .font(.headline)
+                                .foregroundStyle(NammaColor.ink)
                             ForEach(result.negotiationPoints, id: \.self) { point in
                                 Label(point, systemImage: "checkmark.circle")
                                     .font(.subheadline)
+                                    .foregroundStyle(NammaColor.deepGreen)
                             }
                         }
                     }
                 }
             }
-            .padding()
+            .padding(.horizontal, 16)
+            .padding(.vertical, 18)
         }
-        .background(Color(.secondarySystemBackground))
+        .background(NammaBackground().ignoresSafeArea())
         .navigationTitle("Rent Check")
+        .navigationBarTitleDisplayMode(.inline)
+        .tint(NammaColor.deepGreen)
         .task {
             localityVM.load()
         }

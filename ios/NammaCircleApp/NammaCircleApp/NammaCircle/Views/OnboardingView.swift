@@ -8,18 +8,40 @@ struct OnboardingView: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView {
+            ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 18) {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Find your Bangalore starting point")
-                            .font(.largeTitle.bold())
-                        Text("Tell NammaCircle what matters for your first home base. This is mock-only for now.")
-                            .foregroundStyle(.secondary)
+                    SectionCard(tone: .hero) {
+                        VStack(alignment: .leading, spacing: 14) {
+                            HStack(spacing: 12) {
+                                NammaBrandMark()
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("NammaCircle")
+                                        .font(.title2.bold())
+                                        .foregroundStyle(NammaColor.deepGreen)
+                                    Text("Settle into Bengaluru with better local context.")
+                                        .font(.caption)
+                                        .foregroundStyle(NammaColor.muted)
+                                }
+                            }
+
+                            Text("Find your Bangalore starting point")
+                                .font(.largeTitle.bold())
+                                .foregroundStyle(NammaColor.ink)
+                                .fixedSize(horizontal: false, vertical: true)
+                            Text("Tell us what matters for your first home base. The MVP uses mock data until Supabase mode is configured.")
+                                .font(.subheadline)
+                                .foregroundStyle(NammaColor.muted)
+
+                            BengaluruIllustrationView(scene: .home)
+                                .frame(height: 168)
+                        }
                     }
 
-                    SectionCard {
+                    SectionCard(tone: .sky) {
                         VStack(alignment: .leading, spacing: 14) {
-                            Text("Work and budget").font(.headline)
+                            Label("Work and budget", systemImage: "building.2.fill")
+                                .font(.headline)
+                                .foregroundStyle(NammaColor.ink)
                             TextField("Office location or landmark", text: $appState.onboarding.workLocationText)
                                 .textFieldStyle(.roundedBorder)
 
@@ -29,9 +51,11 @@ struct OnboardingView: View {
                         }
                     }
 
-                    SectionCard {
+                    SectionCard(tone: .peach) {
                         VStack(alignment: .leading, spacing: 14) {
-                            Text("Lifestyle").font(.headline)
+                            Label("Lifestyle", systemImage: "leaf.fill")
+                                .font(.headline)
+                                .foregroundStyle(NammaColor.ink)
                             LazyVGrid(columns: [GridItem(.adaptive(minimum: 120))], alignment: .leading) {
                                 ForEach(suggestedTags, id: \.self) { tag in
                                     Toggle(tag, isOn: tagBinding(tag))
@@ -44,14 +68,16 @@ struct OnboardingView: View {
                                 Button("Add") {
                                     addCustomTag()
                                 }
-                                .buttonStyle(.borderedProminent)
+                                .buttonStyle(NammaSecondaryButtonStyle())
                             }
                         }
                     }
 
-                    SectionCard {
+                    SectionCard(tone: .leaf) {
                         VStack(alignment: .leading, spacing: 12) {
-                            Text("Preferences").font(.headline)
+                            Label("Preferences", systemImage: "slider.horizontal.3")
+                                .font(.headline)
+                                .foregroundStyle(NammaColor.ink)
                             Toggle("Prefer quiet streets", isOn: $appState.onboarding.wantsQuiet)
                             Toggle("Want social life nearby", isOn: $appState.onboarding.wantsSocialLife)
                             Toggle("Prioritize low cost", isOn: $appState.onboarding.wantsLowCost)
@@ -67,12 +93,14 @@ struct OnboardingView: View {
                         Text("Show my NammaCircle")
                             .frame(maxWidth: .infinity)
                     }
-                    .buttonStyle(.borderedProminent)
+                    .buttonStyle(NammaPrimaryButtonStyle())
                     .controlSize(.large)
                 }
-                .padding()
+                .padding(.horizontal, 16)
+                .padding(.vertical, 18)
             }
-            .background(Color(.secondarySystemBackground))
+            .background(NammaBackground().ignoresSafeArea())
+            .tint(NammaColor.deepGreen)
         }
     }
 

@@ -14,7 +14,7 @@ struct MainTabView: View {
                 LocalityMapView()
             }
             .tabItem {
-                Label("Areas", systemImage: "map")
+                Label("Map", systemImage: "map")
             }
 
             NavigationStack {
@@ -28,22 +28,23 @@ struct MainTabView: View {
                 KannadaLessonView()
             }
             .tabItem {
-                Label("Kannada", systemImage: "text.book.closed")
+                Label("Learn", systemImage: "text.book.closed")
             }
 
             NavigationStack {
                 ForumView()
             }
             .tabItem {
-                Label("Forum", systemImage: "bubble.left.and.bubble.right")
+                Label("Community", systemImage: "bubble.left.and.bubble.right")
             }
 
             NavigationStack {
                 QuestsView()
             }
             .tabItem {
-                Label("More", systemImage: "sparkles")
+                Label("Quests", systemImage: "sparkles")
             }
         }
+        .tint(NammaColor.deepGreen)
     }
 }

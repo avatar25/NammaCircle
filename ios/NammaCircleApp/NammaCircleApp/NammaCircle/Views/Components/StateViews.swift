@@ -6,9 +6,10 @@ struct LoadingStateView: View {
     var body: some View {
         VStack(spacing: 12) {
             ProgressView()
+                .tint(NammaColor.deepGreen)
             Text(message)
                 .font(.subheadline)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(NammaColor.muted)
         }
         .frame(maxWidth: .infinity)
         .padding()
@@ -21,11 +22,15 @@ struct EmptyStateView: View {
 
     var body: some View {
         VStack(spacing: 8) {
+            Image(systemName: "leaf.fill")
+                .font(.title2)
+                .foregroundStyle(NammaColor.leaf)
             Text(title)
                 .font(.headline)
+                .foregroundStyle(NammaColor.ink)
             Text(message)
                 .font(.subheadline)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(NammaColor.muted)
                 .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity)
@@ -39,10 +44,14 @@ struct ErrorBanner: View {
     var body: some View {
         Label(message, systemImage: "exclamationmark.triangle")
             .font(.subheadline)
-            .foregroundStyle(.red)
+            .foregroundStyle(NammaColor.danger)
             .padding()
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Color.red.opacity(0.08))
-            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .background(NammaColor.danger.opacity(0.10))
+            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .overlay {
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .stroke(NammaColor.danger.opacity(0.12), lineWidth: 1)
+            }
     }
 }
