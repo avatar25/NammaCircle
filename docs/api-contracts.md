@@ -126,6 +126,7 @@ Supported actions:
 - Derive total points from non-reversed `points_ledger` rows.
 - Prevent duplicate active rewards with unique `(user_id, source_type, source_id)` ledger entries.
 - Streaks update only for Kannada lesson completion and daily quest completion.
+- Quest points are now awarded from approved `quest_submissions`; iOS should not call `complete_daily_quest` directly for reviewed quests.
 
 Ranks:
 
@@ -135,6 +136,54 @@ Ranks:
 - `Area Scout`: 1500
 - `Local Guide`: 5000
 - `City Sage`: 15000
+
+## Quest Submissions
+
+Quest types:
+
+- `learn_kannada`
+- `forum_help`
+- `photo_walk`
+- `rent_signal`
+- `area_tip`
+
+### Active Quests
+
+`GET /rest/v1/quests?is_active=eq.true`
+
+```json
+{
+  "id": "quest-uuid",
+  "title": "Share one rent signal from your locality",
+  "description": "Submit one recent rent or deposit observation.",
+  "quest_type": "rent_signal",
+  "points": 20,
+  "is_active": true
+}
+```
+
+### Submit Quest Proof
+
+`POST /rest/v1/quest_submissions`
+
+```json
+{
+  "quest_id": "quest-uuid",
+  "user_id": "auth-user-uuid",
+  "text_response": "2BHK semi-furnished near HSR, rent around 48k, deposit 5 months.",
+  "photo_url": null,
+  "verification_status": "pending"
+}
+```
+
+Rules:
+
+- Most quests submit as `pending`.
+- `learn_kannada` can submit as `approved` and auto-award points.
+- Admin review changes submissions to `approved` or `rejected`.
+- Points are inserted into `points_ledger` only when a submission first becomes `approved`.
+- Daily quests prevent duplicate approved submissions for the same `quest_id`, `user_id`, and `submission_date`.
+- Photo upload is a placeholder in the MVP; clients may send a placeholder URL/string until storage is implemented.
 
 ## Forum Moderation
 

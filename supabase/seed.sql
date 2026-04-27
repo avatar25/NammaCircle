@@ -168,10 +168,10 @@ on conflict do nothing;
 
 insert into public.quests (title, description, quest_type, locality_id, points, is_active, sponsor_name)
 values
-  ('Learn one Kannada phrase', 'Complete today''s Kannada lesson and use the phrase once.', 'lesson', null, 10, true, null),
-  ('Compare two localities', 'Check scores for two areas near your office and save your preference.', 'locality_research', null, 20, true, null),
-  ('Metro confidence run', 'Take a short metro ride and write one tip for another newcomer.', 'city_exploration', null, 25, true, null),
-  ('Rent sanity check', 'Run a rent fairness check before speaking to a broker.', 'rent_check', null, 15, true, null)
+  ('Learn 3 Kannada phrases for autos', 'Practice three auto-related Kannada phrases and mark the lesson complete.', 'learn_kannada', null, 10, true, null),
+  ('Share one rent signal from your locality', 'Submit one recent rent or deposit observation that can help another newcomer.', 'rent_signal', null, 20, true, null),
+  ('Help one newcomer in the forum', 'Answer one practical question from someone settling into Bengaluru.', 'forum_help', null, 15, true, null),
+  ('Visit Cubbon Park and upload a nature photo', 'Take a short walk, notice one calm green spot, and submit a photo placeholder.', 'photo_walk', null, 25, true, null)
 on conflict do nothing;
 
 insert into public.forum_posts (user_id, locality_id, title, body, category, urgency, moderation_status)

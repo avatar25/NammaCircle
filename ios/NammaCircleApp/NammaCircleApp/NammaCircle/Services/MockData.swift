@@ -47,8 +47,10 @@ enum MockData {
     ]
 
     static let quests = [
-        Quest(id: UUID(), title: "Learn one Kannada phrase", description: "Complete today’s phrase and try it once.", questType: "lesson", points: 10, isActive: true),
-        Quest(id: UUID(), title: "Metro confidence run", description: "Take one short metro trip and note your route.", questType: "city_exploration", points: 25, isActive: true)
+        Quest(id: UUID(), title: "Learn 3 Kannada phrases for autos", description: "Practice three auto phrases before your next ride.", questType: "learn_kannada", points: 10, isActive: true),
+        Quest(id: UUID(), title: "Share one rent signal from your locality", description: "Submit one rent or deposit observation from your area.", questType: "rent_signal", points: 20, isActive: true),
+        Quest(id: UUID(), title: "Help one newcomer in the forum", description: "Answer one practical settling-in question.", questType: "forum_help", points: 15, isActive: true),
+        Quest(id: UUID(), title: "Visit Cubbon Park and upload a nature photo", description: "Take a short walk and attach a photo placeholder.", questType: "photo_walk", points: 25, isActive: true)
     ]
 
     static let mentors = [

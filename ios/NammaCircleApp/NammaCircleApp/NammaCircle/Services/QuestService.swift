@@ -2,16 +2,25 @@ import Foundation
 
 protocol QuestServicing {
     func fetchQuests() async throws -> [Quest]
-    func submitQuest(_ quest: Quest, text: String) async throws
+    func fetchSubmissionStatuses() async throws -> [UUID: QuestSubmissionStatus]
+    func submitQuest(_ quest: Quest, text: String, photoURL: String?) async throws -> QuestSubmissionStatus
 }
 
 final class MockQuestService: QuestServicing {
+    private var statuses: [UUID: QuestSubmissionStatus] = [:]
+
     func fetchQuests() async throws -> [Quest] {
         MockData.quests
     }
 
-    func submitQuest(_ quest: Quest, text: String) async throws {
-        // TODO: store local submission state for richer mock flows.
+    func fetchSubmissionStatuses() async throws -> [UUID: QuestSubmissionStatus] {
+        statuses
+    }
+
+    func submitQuest(_ quest: Quest, text: String, photoURL: String?) async throws -> QuestSubmissionStatus {
+        let status: QuestSubmissionStatus = quest.autoApproves ? .approved : .pending
+        statuses[quest.id] = status
+        return status
     }
 }
 
@@ -44,8 +53,40 @@ final class SupabaseQuestService: QuestServicing {
         }
     }
 
-    func submitQuest(_ quest: Quest, text: String) async throws {
-        // TODO: insert quest_submissions once auth exists.
-        throw ServicePlaceholderError.notImplemented
+    func fetchSubmissionStatuses() async throws -> [UUID: QuestSubmissionStatus] {
+        let session = try await provider.authenticatedSessionForWrite()
+        let rows: [SupabaseQuestSubmissionRow] = try await provider.fetchTable(
+            "quest_submissions",
+            queryItems: [
+                URLQueryItem(name: "select", value: "id,quest_id,user_id,text_response,photo_url,verification_status,created_at"),
+                URLQueryItem(name: "user_id", value: "eq.\(session.userID.uuidString)"),
+                URLQueryItem(name: "order", value: "created_at.desc")
+            ],
+            authenticated: true
+        )
+
+        var statuses: [UUID: QuestSubmissionStatus] = [:]
+        for row in rows where statuses[row.questId] == nil {
+            statuses[row.questId] = QuestSubmissionStatus(rawValue: row.verificationStatus) ?? .pending
+        }
+        return statuses
+    }
+
+    func submitQuest(_ quest: Quest, text: String, photoURL: String?) async throws -> QuestSubmissionStatus {
+        let session = try await provider.authenticatedSessionForWrite()
+        let status: QuestSubmissionStatus = quest.autoApproves ? .approved : .pending
+        let payload = SupabaseQuestSubmissionInsert(
+            questId: quest.id,
+            userId: session.userID,
+            textResponse: text,
+            photoUrl: photoURL,
+            verificationStatus: status.rawValue
+        )
+        let _: [SupabaseQuestSubmissionRow] = try await provider.insert(
+            into: "quest_submissions",
+            payload: payload,
+            authenticated: true
+        )
+        return status
     }
 }

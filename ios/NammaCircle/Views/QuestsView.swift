@@ -26,7 +26,7 @@ struct QuestsView: View {
                         NavigationLink {
                             QuestDetailView(quest: quest, viewModel: viewModel)
                         } label: {
-                            QuestCard(quest: quest)
+                            QuestCard(quest: quest, status: viewModel.status(for: quest))
                         }
                         .buttonStyle(.plain)
                     }
@@ -63,6 +63,7 @@ struct QuestsView: View {
 
 struct QuestCard: View {
     let quest: Quest
+    let status: QuestSubmissionStatus?
 
     var body: some View {
         SectionCard(tone: .peach) {
@@ -77,7 +78,12 @@ struct QuestCard: View {
                         .font(.subheadline)
                         .lineLimit(2)
                         .foregroundStyle(NammaColor.muted)
-                    NammaBadge(text: "+\(quest.points) points", systemImage: "rosette", tone: NammaColor.rose)
+                    HStack {
+                        NammaBadge(text: "+\(quest.points) points", systemImage: "rosette", tone: NammaColor.rose)
+                        if let status {
+                            NammaBadge(text: status.title, systemImage: "checkmark.seal", tone: statusTint(status))
+                        }
+                    }
                 }
                 Spacer()
             }
@@ -110,20 +116,31 @@ struct QuestDetailView: View {
                         Text("Submit proof")
                             .font(.headline)
                             .foregroundStyle(NammaColor.ink)
+                        if let status = viewModel.status(for: quest) {
+                            Label(status.title, systemImage: statusIcon(status))
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundStyle(statusTint(status))
+                        } else if quest.autoApproves {
+                            Label("Auto-approves after submit", systemImage: "bolt.fill")
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(NammaColor.deepGreen)
+                        }
                         TextEditor(text: $viewModel.submissionText)
                             .frame(minHeight: 160)
                             .scrollContentBackground(.hidden)
                             .padding(10)
                             .background(.white.opacity(0.62))
                             .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-                        Button(viewModel.submittedQuestIDs.contains(quest.id) ? "Submitted" : "Submit text proof") {
+                        Toggle(isOn: $viewModel.photoPlaceholderSelected) {
+                            Label("Photo upload placeholder", systemImage: "photo")
+                                .font(.subheadline)
+                                .foregroundStyle(NammaColor.muted)
+                        }
+                        Button(submitTitle(for: quest, status: viewModel.status(for: quest))) {
                             viewModel.submit(quest)
                         }
                         .buttonStyle(NammaPrimaryButtonStyle())
-                        .disabled(viewModel.submissionText.isEmpty || viewModel.submittedQuestIDs.contains(quest.id))
-                        Label("Photo upload placeholder", systemImage: "photo")
-                            .font(.caption)
-                            .foregroundStyle(NammaColor.muted)
+                        .disabled(!viewModel.canSubmit(quest))
                     }
                 }
             }
@@ -134,5 +151,30 @@ struct QuestDetailView: View {
         .navigationTitle("Quest Detail")
         .navigationBarTitleDisplayMode(.inline)
         .tint(NammaColor.deepGreen)
+    }
+}
+
+private func submitTitle(for quest: Quest, status: QuestSubmissionStatus?) -> String {
+    switch status {
+    case .pending: return "Pending review"
+    case .approved: return "Approved"
+    case .rejected: return "Resubmit proof"
+    case nil: return quest.autoApproves ? "Submit and auto-approve" : "Submit for review"
+    }
+}
+
+private func statusIcon(_ status: QuestSubmissionStatus) -> String {
+    switch status {
+    case .pending: return "clock.fill"
+    case .approved: return "checkmark.seal.fill"
+    case .rejected: return "xmark.octagon.fill"
+    }
+}
+
+private func statusTint(_ status: QuestSubmissionStatus) -> Color {
+    switch status {
+    case .pending: return NammaColor.saffron
+    case .approved: return NammaColor.deepGreen
+    case .rejected: return NammaColor.rose
     }
 }

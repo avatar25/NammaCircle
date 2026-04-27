@@ -74,6 +74,24 @@ struct SupabaseQuestRow: Decodable {
     let isActive: Bool
 }
 
+struct SupabaseQuestSubmissionRow: Decodable {
+    let id: UUID
+    let questId: UUID
+    let userId: UUID
+    let textResponse: String?
+    let photoUrl: String?
+    let verificationStatus: String
+    let createdAt: Date?
+}
+
+struct SupabaseQuestSubmissionInsert: Encodable {
+    let questId: UUID
+    let userId: UUID
+    let textResponse: String?
+    let photoUrl: String?
+    let verificationStatus: String
+}
+
 struct SupabaseMentorRow: Decodable {
     let id: UUID
     let userId: UUID?

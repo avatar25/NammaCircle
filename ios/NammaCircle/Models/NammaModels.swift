@@ -166,6 +166,24 @@ struct Quest: Identifiable {
     let questType: String
     let points: Int
     let isActive: Bool
+
+    var autoApproves: Bool {
+        questType == "learn_kannada"
+    }
+}
+
+enum QuestSubmissionStatus: String {
+    case pending
+    case approved
+    case rejected
+
+    var title: String {
+        switch self {
+        case .pending: return "Pending review"
+        case .approved: return "Approved"
+        case .rejected: return "Rejected"
+        }
+    }
 }
 
 struct Mentor: Identifiable {

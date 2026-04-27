@@ -1,7 +1,7 @@
 import { AdminShell } from "@/components/AdminShell";
 import { PageHeader } from "@/components/PageHeader";
 import { StatusButton } from "@/components/StatusButton";
-import { createQuest, reviewQuestSubmission } from "@/lib/actions";
+import { createQuest, reviewQuestSubmission, toggleQuestActive, updateQuest } from "@/lib/actions";
 import { createAdminSupabaseClient } from "@/lib/supabase";
 
 export const dynamic = "force-dynamic";
@@ -15,7 +15,7 @@ export default async function QuestsPage() {
       .order("created_at", { ascending: false }),
     supabase
       .from("quest_submissions")
-      .select("id, text_response, photo_url, verification_status, created_at, reviewed_at, quests(title)")
+      .select("id, text_response, photo_url, verification_status, created_at, reviewed_at, user_id, quests(title, quest_type, points)")
       .order("created_at", { ascending: false })
   ]);
 
@@ -55,7 +55,7 @@ function CreateQuestForm() {
       <div className="mt-3 grid grid-cols-2 gap-3">
         <label className="text-sm text-neutral-600">
           Type
-          <input className="mt-1 w-full rounded-md border border-stone-300 px-3 py-2" name="quest_type" defaultValue="daily" />
+          <QuestTypeSelect />
         </label>
         <label className="text-sm text-neutral-600">
           Points
@@ -66,10 +66,26 @@ function CreateQuestForm() {
         <input name="is_active" type="checkbox" defaultChecked />
         Active
       </label>
+      <label className="mt-3 block text-sm text-neutral-600">
+        Sponsor name
+        <input className="mt-1 w-full rounded-md border border-stone-300 px-3 py-2" name="sponsor_name" placeholder="Optional" />
+      </label>
       <button className="mt-4 rounded-md bg-neutral-950 px-4 py-2 text-sm font-medium text-white">
         Create quest
       </button>
     </form>
+  );
+}
+
+function QuestTypeSelect({ defaultValue }: { defaultValue?: string }) {
+  return (
+    <select className="mt-1 w-full rounded-md border border-stone-300 px-3 py-2" name="quest_type" defaultValue={defaultValue ?? "area_tip"}>
+      <option value="learn_kannada">learn_kannada</option>
+      <option value="forum_help">forum_help</option>
+      <option value="photo_walk">photo_walk</option>
+      <option value="rent_signal">rent_signal</option>
+      <option value="area_tip">area_tip</option>
+    </select>
   );
 }
 
@@ -81,22 +97,61 @@ function QuestList({ rows, error }: { rows: Record<string, unknown>[]; error?: s
       <div className="mt-4 space-y-3">
         {rows.map((row) => (
           <article className="rounded-md border border-stone-200 p-4" key={String(row.id)}>
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <h3 className="font-medium">{String(row.title ?? "-")}</h3>
-                <p className="mt-1 text-sm text-neutral-600">{String(row.description ?? "")}</p>
+            <form action={updateQuest} className="space-y-3">
+              <input name="id" type="hidden" value={String(row.id)} />
+              <div className="grid gap-3 lg:grid-cols-[1fr_160px]">
+                <label className="text-sm text-neutral-600">
+                  Title
+                  <input className="mt-1 w-full rounded-md border border-stone-300 px-3 py-2" name="title" defaultValue={String(row.title ?? "")} required />
+                </label>
+                <label className="text-sm text-neutral-600">
+                  Points
+                  <input className="mt-1 w-full rounded-md border border-stone-300 px-3 py-2" min={0} name="points" type="number" defaultValue={Number(row.points ?? 0)} />
+                </label>
               </div>
-              <span className="rounded-full bg-stone-100 px-2 py-1 text-xs">
-                {String(row.points ?? 0)} pts
-              </span>
+              <label className="block text-sm text-neutral-600">
+                Description
+                <textarea className="mt-1 min-h-20 w-full rounded-md border border-stone-300 px-3 py-2" name="description" defaultValue={String(row.description ?? "")} required />
+              </label>
+              <div className="grid gap-3 lg:grid-cols-3">
+                <label className="text-sm text-neutral-600">
+                  Type
+                  <QuestTypeSelect defaultValue={String(row.quest_type ?? "area_tip")} />
+                </label>
+                <label className="text-sm text-neutral-600">
+                  Sponsor
+                  <input className="mt-1 w-full rounded-md border border-stone-300 px-3 py-2" name="sponsor_name" defaultValue={String(row.sponsor_name ?? "")} placeholder="Optional" />
+                </label>
+                <label className="mt-7 flex items-center gap-2 text-sm text-neutral-700">
+                  <input name="is_active" type="checkbox" defaultChecked={Boolean(row.is_active)} />
+                  Active
+                </label>
+              </div>
+              <div>
+                <button className="rounded-md bg-neutral-950 px-3 py-2 text-xs font-medium text-white">
+                  Save quest
+                </button>
+              </div>
+            </form>
+            <div className="mt-2">
+              <ToggleQuestButton id={String(row.id)} isActive={Boolean(row.is_active)} />
             </div>
-            <p className="mt-2 text-xs text-neutral-500">
-              {String(row.quest_type ?? "-")} / {row.is_active ? "active" : "inactive"}
-            </p>
           </article>
         ))}
       </div>
     </div>
+  );
+}
+
+function ToggleQuestButton({ id, isActive }: { id: string; isActive: boolean }) {
+  return (
+    <form action={toggleQuestActive}>
+      <input name="id" type="hidden" value={id} />
+      <input name="is_active" type="hidden" value={String(isActive)} />
+      <button className="rounded-md border border-stone-300 bg-white px-3 py-2 text-xs font-medium hover:bg-stone-100">
+        {isActive ? "Deactivate" : "Activate"}
+      </button>
+    </form>
   );
 }
 
@@ -116,8 +171,14 @@ function SubmissionsTable({ rows, error }: { rows: Record<string, unknown>[]; er
         <tbody className="divide-y divide-stone-200">
           {rows.map((row) => (
             <tr className="align-top" key={String(row.id)}>
-              <td className="px-4 py-4">{relatedTitle(row.quests)}</td>
-              <td className="max-w-xl px-4 py-4 text-neutral-600">{String(row.text_response ?? "-")}</td>
+              <td className="px-4 py-4">
+                <p className="font-medium">{relatedTitle(row.quests)}</p>
+                <p className="mt-1 text-xs text-neutral-500">{relatedQuestMeta(row.quests)}</p>
+              </td>
+              <td className="max-w-xl px-4 py-4 text-neutral-600">
+                <p>{String(row.text_response ?? "-")}</p>
+                {row.photo_url ? <p className="mt-2 text-xs text-neutral-500">Photo: {String(row.photo_url)}</p> : null}
+              </td>
               <td className="px-4 py-4">{String(row.verification_status ?? "-")}</td>
               <td className="flex gap-2 px-4 py-4">
                 <StatusButton action={reviewQuestSubmission} id={String(row.id)} label="Approve" status="approved" />
@@ -138,6 +199,18 @@ function relatedTitle(value: unknown) {
 
   if (value && typeof value === "object" && "title" in value) {
     return String(value.title);
+  }
+
+  return "-";
+}
+
+function relatedQuestMeta(value: unknown) {
+  const quest = Array.isArray(value) ? value[0] : value;
+
+  if (quest && typeof quest === "object") {
+    const type = "quest_type" in quest ? String(quest.quest_type) : "-";
+    const points = "points" in quest ? String(quest.points) : "0";
+    return `${type} / ${points} pts`;
   }
 
   return "-";

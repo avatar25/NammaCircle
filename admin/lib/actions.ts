@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createAdminSupabaseClient } from "./supabase";
 
 type ModerationStatus = "approved" | "rejected" | "hidden" | "visible";
+type QuestType = "learn_kannada" | "forum_help" | "photo_walk" | "rent_signal" | "area_tip";
 
 export async function updateLocalityScores(formData: FormData) {
   const supabase = createAdminSupabaseClient();
@@ -71,10 +72,48 @@ export async function createQuest(formData: FormData) {
   const { error } = await supabase.from("quests").insert({
     title: String(formData.get("title")),
     description: String(formData.get("description")),
-    quest_type: String(formData.get("quest_type") || "daily"),
+    quest_type: questType(formData.get("quest_type")),
     points: toNumber(formData.get("points")),
-    is_active: formData.get("is_active") === "on"
+    is_active: formData.get("is_active") === "on",
+    sponsor_name: nullableString(formData.get("sponsor_name"))
   });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  revalidatePath("/quests");
+  revalidatePath("/dashboard");
+}
+
+export async function updateQuest(formData: FormData) {
+  const supabase = createAdminSupabaseClient();
+  const { error } = await supabase
+    .from("quests")
+    .update({
+      title: String(formData.get("title")),
+      description: String(formData.get("description")),
+      quest_type: questType(formData.get("quest_type")),
+      points: toNumber(formData.get("points")),
+      is_active: formData.get("is_active") === "on",
+      sponsor_name: nullableString(formData.get("sponsor_name"))
+    })
+    .eq("id", String(formData.get("id")));
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  revalidatePath("/quests");
+  revalidatePath("/dashboard");
+}
+
+export async function toggleQuestActive(formData: FormData) {
+  const supabase = createAdminSupabaseClient();
+  const { error } = await supabase
+    .from("quests")
+    .update({ is_active: formData.get("is_active") !== "true" })
+    .eq("id", String(formData.get("id")));
 
   if (error) {
     throw new Error(error.message);
@@ -157,4 +196,21 @@ async function moderateForumTarget(
 function toNumber(value: FormDataEntryValue | null) {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function nullableString(value: FormDataEntryValue | null) {
+  const text = String(value ?? "").trim();
+  return text.length > 0 ? text : null;
+}
+
+function questType(value: FormDataEntryValue | null): QuestType {
+  const allowed: QuestType[] = [
+    "learn_kannada",
+    "forum_help",
+    "photo_walk",
+    "rent_signal",
+    "area_tip"
+  ];
+  const normalized = String(value ?? "");
+  return allowed.includes(normalized as QuestType) ? (normalized as QuestType) : "area_tip";
 }

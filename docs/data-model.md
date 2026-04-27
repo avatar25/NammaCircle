@@ -47,7 +47,23 @@
 - `id`
 - `title`
 - `description`
+- `quest_type`
 - `points`
+- `is_active`
+
+Quest types are `learn_kannada`, `forum_help`, `photo_walk`, `rent_signal`, and `area_tip`.
+
+### Quest Submission
+
+- `id`
+- `quest_id`
+- `user_id`
+- `text_response`
+- `photo_url`
+- `verification_status`
+- `submission_date`
+
+Approved quest submissions write to `points_ledger`. Daily quests allow only one approved submission for the same user, quest, and day.
 
 ### Mentor
 

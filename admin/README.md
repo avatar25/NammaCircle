@@ -10,6 +10,8 @@ Next.js + TypeScript + Tailwind dashboard for the NammaCircle MVP.
 - Manage locality score metadata
 - Review mentor profiles
 - Track quest submissions
+- Create, edit, activate, and deactivate MVP quests
+- Approve/reject quest submissions; approved submissions award points through the backend trigger
 - Inspect basic activity metrics
 
 ## Not Implemented Yet

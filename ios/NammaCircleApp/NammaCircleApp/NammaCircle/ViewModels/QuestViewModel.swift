@@ -5,19 +5,16 @@ import Combine
 final class QuestViewModel: ObservableObject {
     @Published var quests: [Quest] = []
     @Published var submissionText = ""
-    @Published var submittedQuestIDs: Set<UUID> = []
+    @Published var photoPlaceholderSelected = false
+    @Published var submissionStatuses: [UUID: QuestSubmissionStatus] = [:]
     @Published var isLoading = false
+    @Published var isSubmitting = false
     @Published var errorMessage: String?
 
     private let service: QuestServicing
-    private let progressService: ProgressServicing
 
-    init(
-        service: QuestServicing = ServiceFactory.shared.questService,
-        progressService: ProgressServicing = ServiceFactory.shared.progressService
-    ) {
+    init(service: QuestServicing = ServiceFactory.shared.questService) {
         self.service = service
-        self.progressService = progressService
     }
 
     func load() {
@@ -28,6 +25,7 @@ final class QuestViewModel: ObservableObject {
 
             do {
                 quests = try await service.fetchQuests()
+                submissionStatuses = try await service.fetchSubmissionStatuses()
             } catch {
                 errorMessage = error.localizedDescription
             }
@@ -37,15 +35,33 @@ final class QuestViewModel: ObservableObject {
     func submit(_ quest: Quest) {
         Task {
             errorMessage = nil
+            isSubmitting = true
+            defer { isSubmitting = false }
 
             do {
-                try await service.submitQuest(quest, text: submissionText)
-                _ = try await progressService.awardQuestCompletion(questID: quest.id, points: quest.points)
-                submittedQuestIDs.insert(quest.id)
+                let status = try await service.submitQuest(
+                    quest,
+                    text: submissionText,
+                    photoURL: photoPlaceholderSelected ? "photo-upload-placeholder" : nil
+                )
+                submissionStatuses[quest.id] = status
                 submissionText = ""
+                photoPlaceholderSelected = false
             } catch {
                 errorMessage = error.localizedDescription
             }
         }
+    }
+
+    func status(for quest: Quest) -> QuestSubmissionStatus? {
+        submissionStatuses[quest.id]
+    }
+
+    func canSubmit(_ quest: Quest) -> Bool {
+        if submissionText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isSubmitting {
+            return false
+        }
+
+        return status(for: quest) != .pending && status(for: quest) != .approved
     }
 }

@@ -41,9 +41,10 @@ final class SupabaseClientProvider {
 
     func fetchTable<T: Decodable>(
         _ table: String,
-        queryItems: [URLQueryItem] = []
+        queryItems: [URLQueryItem] = [],
+        authenticated: Bool = false
     ) async throws -> T {
-        try await request(path: "/rest/v1/\(table)", queryItems: queryItems)
+        try await request(path: "/rest/v1/\(table)", queryItems: queryItems, authenticated: authenticated)
     }
 
     func insert<T: Encodable, Response: Decodable>(
@@ -91,9 +92,16 @@ final class SupabaseClientProvider {
 
     private func request<T: Decodable>(
         path: String,
-        queryItems: [URLQueryItem] = []
+        queryItems: [URLQueryItem] = [],
+        authenticated: Bool = false
     ) async throws -> T {
-        let request = try makeRequest(path: path, queryItems: queryItems)
+        var request = try makeRequest(path: path, queryItems: queryItems)
+
+        if authenticated {
+            let session = try await anonymousAuthSession()
+            request.setValue("Bearer \(session.accessToken)", forHTTPHeaderField: "Authorization")
+        }
+
         return try await perform(request)
     }
 
