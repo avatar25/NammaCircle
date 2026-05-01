@@ -20,6 +20,11 @@ This repo is a monorepo for the MVP: SwiftUI iOS app, Next.js admin dashboard, S
   Product spec, architecture notes, data model, and API contracts
 ```
 
+## Brand Assets
+
+- `app icon.png` is the source artwork for the iOS app icon, the SwiftUI brand mark, and the admin dashboard favicon/sidebar mark.
+- `icons.png` is the source feature-art sheet. Cropped feature images live in `ios/NammaCircleApp/NammaCircleApp/Assets.xcassets` and are used by the SwiftUI home, locality, Kannada, rent, quest, and mentor surfaces.
+
 ## MVP Scope
 
 - Locality map, recommendations, and scores
@@ -106,6 +111,7 @@ deno test supabase/edge-functions/area-recommendations/areaRecommendations.test.
 deno test supabase/edge-functions/rewards/rewardLogic.test.ts
 deno test supabase/edge-functions/moderation/moderationRules.test.ts
 deno test supabase/edge-functions/quests/questRules.test.ts
+deno test supabase/edge-functions/ai-report/localityReport.test.ts
 ```
 
 ## Key Docs
@@ -114,6 +120,7 @@ deno test supabase/edge-functions/quests/questRules.test.ts
 - [Architecture](docs/architecture.md)
 - [Data model](docs/data-model.md)
 - [API contracts](docs/api-contracts.md)
+- [AI report service](docs/ai-report-service.md)
 - [Trust and safety](docs/trust-and-safety.md)
 - [Agent guidelines](AGENTS.md)
 

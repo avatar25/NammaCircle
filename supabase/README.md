@@ -15,6 +15,7 @@ Supabase/Postgres is the source of truth for the NammaCircle MVP.
 - `edge-functions/rewards`: deterministic points, rank, and streak rules.
 - `edge-functions/moderation`: pure moderation visibility rules and tests.
 - `edge-functions/quests`: pure quest status and approval rules.
+- `edge-functions/ai-report`: deterministic locality report placeholder with a swappable explanation generator.
 
 ## Local Setup
 
@@ -30,6 +31,7 @@ deno test supabase/edge-functions/rent-check/rentFairness.test.ts
 deno test supabase/edge-functions/rewards/rewardLogic.test.ts
 deno test supabase/edge-functions/moderation/moderationRules.test.ts
 deno test supabase/edge-functions/quests/questRules.test.ts
+deno test supabase/edge-functions/ai-report/localityReport.test.ts
 ```
 
 ## Notes

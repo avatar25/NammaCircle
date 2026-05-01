@@ -16,9 +16,16 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-stone-50 text-neutral-950">
       <aside className="fixed inset-y-0 left-0 hidden w-64 border-r border-stone-200 bg-white px-4 py-6 lg:block">
-        <div>
-          <p className="text-xs font-semibold uppercase text-emerald-700">NammaCircle</p>
-          <h1 className="mt-1 text-xl font-semibold">Admin</h1>
+        <div className="flex items-center gap-3">
+          <img
+            alt="NammaCircle"
+            className="h-11 w-11 rounded-xl border border-stone-200 object-cover shadow-sm"
+            src="/app-icon.png"
+          />
+          <div>
+            <p className="text-xs font-semibold uppercase text-emerald-700">NammaCircle</p>
+            <h1 className="mt-1 text-xl font-semibold">Admin</h1>
+          </div>
         </div>
         <nav className="mt-8 space-y-1">
           {navItems.map((item) => (
@@ -37,7 +44,10 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       </aside>
       <div className="lg:pl-64">
         <header className="border-b border-stone-200 bg-white px-5 py-4 lg:hidden">
-          <p className="text-sm font-semibold">NammaCircle Admin</p>
+          <div className="flex items-center gap-2">
+            <img alt="NammaCircle" className="h-8 w-8 rounded-lg object-cover" src="/app-icon.png" />
+            <p className="text-sm font-semibold">NammaCircle Admin</p>
+          </div>
           <nav className="mt-3 flex gap-2 overflow-x-auto">
             {navItems.map((item) => (
               <Link

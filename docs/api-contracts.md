@@ -78,6 +78,49 @@ AI is not used to rank areas. Later, AI may generate friendlier explanations fro
 - `yellow`: score >= 55 and < 75.
 - `red`: score < 55.
 
+## AI Report Placeholder
+
+`POST /functions/v1/ai-report`
+
+Generates a deterministic, template-based locality report from the same source data as area recommendations. No external AI API is called.
+
+### Response
+
+```json
+{
+  "summary": "HSR Layout is the strongest deterministic match...",
+  "top_5_areas": [
+    {
+      "locality_id": "uuid",
+      "name": "HSR Layout",
+      "slug": "hsr-layout",
+      "fit": "green",
+      "score": 82,
+      "reasons": ["HSR Layout scores well for affordability."],
+      "risks": ["No major MVP scoring risks found; still verify rent and commute before deciding."],
+      "rent_note": "HSR Layout: rent fit uses stored rent_score 8/10 and does not estimate a live market price.",
+      "commute_note": "HSR Layout: commute fit uses stored commute_score 8/10 for the MVP recommendation.",
+      "confidence_level": "medium",
+      "last_verified_at": "2026-04-26T00:00:00Z"
+    }
+  ],
+  "fit_counts": {
+    "green": 2,
+    "yellow": 3,
+    "red": 0
+  },
+  "risks": [],
+  "rent_notes": [],
+  "commute_notes": [],
+  "survival_tips": [],
+  "confidence_level": "medium",
+  "explanation_mode": "template",
+  "source_of_truth": "deterministic_area_recommendations"
+}
+```
+
+The future AI generator must only explain deterministic scores and stored data; it must not invent rent, safety, or commute facts.
+
 ## Rewards, Streaks, And Points
 
 `POST /functions/v1/rewards`

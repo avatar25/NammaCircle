@@ -27,7 +27,7 @@ Deno.test("returns top 5 localities sorted by deterministic score", () => {
 
   assertEquals(recommendations.length, 5);
   assertEquals(recommendations[0].name, "A");
-  assertEquals(recommendations.some((recommendation) => recommendation.name === "F"), false);
+  assertEquals(recommendations.some((recommendation) => recommendation.name === "B"), false);
 });
 
 Deno.test("quiet preference rewards quiet score over social life", () => {

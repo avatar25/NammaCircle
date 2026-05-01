@@ -1,0 +1,11 @@
+{
+  "lint": {
+    "include": ["supabase/edge-functions"],
+    "rules": {
+      "exclude": ["no-import-prefix"]
+    }
+  },
+  "test": {
+    "include": ["supabase/edge-functions"]
+  }
+}

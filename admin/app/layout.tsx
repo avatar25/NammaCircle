@@ -3,7 +3,11 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "NammaCircle Admin",
-  description: "Moderation and operations dashboard for NammaCircle."
+  description: "Moderation and operations dashboard for NammaCircle.",
+  icons: {
+    icon: "/app-icon.png",
+    apple: "/app-icon.png"
+  }
 };
 
 export default function RootLayout({

@@ -194,28 +194,28 @@ struct HomeShortcutGrid: View {
             NavigationLink {
                 LocalityMapView()
             } label: {
-                HomeShortcutTile(title: "Explore areas", subtitle: "Scores and fit", systemImage: "map.fill", tone: NammaColor.leaf)
+                HomeShortcutTile(title: "Explore areas", subtitle: "Scores and fit", imageName: "FeatureLocality", tone: NammaColor.leaf)
             }
             .buttonStyle(.plain)
 
             NavigationLink {
                 RentCheckView()
             } label: {
-                HomeShortcutTile(title: "Check rent", subtitle: "Fairness cues", systemImage: "indianrupeesign.circle.fill", tone: NammaColor.saffron)
+                HomeShortcutTile(title: "Check rent", subtitle: "Fairness cues", imageName: "FeatureRent", tone: NammaColor.saffron)
             }
             .buttonStyle(.plain)
 
             NavigationLink {
                 MentorView()
             } label: {
-                HomeShortcutTile(title: "Find mentors", subtitle: "Local help", systemImage: "person.2.fill", tone: NammaColor.teal)
+                HomeShortcutTile(title: "Find mentors", subtitle: "Local help", imageName: "FeatureMentor", tone: NammaColor.teal)
             }
             .buttonStyle(.plain)
 
             NavigationLink {
                 QuestsView()
             } label: {
-                HomeShortcutTile(title: "Namma quests", subtitle: "Earn points", systemImage: "rosette", tone: NammaColor.rose)
+                HomeShortcutTile(title: "Namma quests", subtitle: "Earn points", imageName: "FeatureQuest", tone: NammaColor.rose)
             }
             .buttonStyle(.plain)
         }
@@ -225,17 +225,17 @@ struct HomeShortcutGrid: View {
 struct HomeShortcutTile: View {
     let title: String
     let subtitle: String
-    let systemImage: String
+    let imageName: String
     let tone: Color
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Image(systemName: systemImage)
-                .font(.title3.weight(.bold))
-                .foregroundStyle(tone)
-                .frame(width: 34, height: 34)
-                .background(tone.opacity(0.12))
+            Image(imageName)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 44, height: 44)
                 .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                .shadow(color: tone.opacity(0.14), radius: 8, x: 0, y: 4)
             Text(title)
                 .font(.subheadline.weight(.bold))
                 .foregroundStyle(NammaColor.ink)

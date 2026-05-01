@@ -236,20 +236,15 @@ struct NammaSecondaryButtonStyle: ButtonStyle {
 
 struct NammaBrandMark: View {
     var body: some View {
-        ZStack {
-            LeafShape()
-                .fill(NammaColor.deepGreen)
-                .rotationEffect(.degrees(-18))
-                .offset(x: -5, y: 1)
-            LeafShape()
-                .fill(NammaColor.saffron)
-                .rotationEffect(.degrees(20))
-                .offset(x: 8, y: -1)
-            Image(systemName: "building.columns.fill")
-                .font(.system(size: 13, weight: .bold))
-                .foregroundStyle(NammaColor.cream)
-                .offset(x: -2, y: 7)
-        }
+        Image("AppBrandMark")
+            .resizable()
+            .scaledToFit()
+            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .overlay {
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .stroke(Color.white.opacity(0.42), lineWidth: 1)
+            }
+            .shadow(color: NammaColor.deepGreen.opacity(0.12), radius: 8, x: 0, y: 4)
         .frame(width: 46, height: 46)
     }
 }
@@ -267,51 +262,18 @@ struct BengaluruIllustrationView: View {
     let scene: Scene
 
     var body: some View {
-        ZStack(alignment: .bottom) {
+        ZStack {
             LinearGradient(
                 colors: [Color.white.opacity(0.36), NammaColor.cardPeach.opacity(0.7)],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
 
-            Image(systemName: scene.backgroundSymbol)
-                .font(.system(size: 72, weight: .semibold))
-                .foregroundStyle(scene.accent.opacity(0.18))
-                .offset(x: 82, y: -42)
-
-            SkylineStrip()
+            Image(scene.assetName)
+                .resizable()
+                .scaledToFit()
+                .padding(.vertical, 10)
                 .padding(.horizontal, 18)
-                .padding(.bottom, 28)
-
-            RoadStrip()
-                .frame(height: 34)
-
-            HStack(alignment: .bottom) {
-                if scene == .lesson {
-                    Image(systemName: "book.closed.fill")
-                        .font(.system(size: 42, weight: .bold))
-                        .foregroundStyle(NammaColor.deepGreen)
-                } else if scene == .community {
-                    Image(systemName: "person.2.fill")
-                        .font(.system(size: 42, weight: .bold))
-                        .foregroundStyle(NammaColor.teal)
-                } else if scene == .quest {
-                    Image(systemName: "rosette")
-                        .font(.system(size: 44, weight: .bold))
-                        .foregroundStyle(NammaColor.rose)
-                } else if scene == .rent {
-                    Image(systemName: "indianrupeesign.circle.fill")
-                        .font(.system(size: 46, weight: .bold))
-                        .foregroundStyle(NammaColor.saffron)
-                } else {
-                    AutoBadge()
-                }
-                Spacer()
-                TreeCluster()
-                    .frame(width: 66, height: 72)
-            }
-            .padding(.horizontal, 20)
-            .padding(.bottom, 18)
         }
         .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
         .overlay {
@@ -321,25 +283,15 @@ struct BengaluruIllustrationView: View {
     }
 }
 
-private extension BengaluruIllustrationView.Scene {
-    var accent: Color {
+extension BengaluruIllustrationView.Scene {
+    var assetName: String {
         switch self {
-        case .home, .locality: return NammaColor.leaf
-        case .lesson: return NammaColor.saffron
-        case .community: return NammaColor.teal
-        case .quest: return NammaColor.rose
-        case .rent: return NammaColor.deepGreen
-        }
-    }
-
-    var backgroundSymbol: String {
-        switch self {
-        case .home: return "tram.fill"
-        case .locality: return "map.fill"
-        case .lesson: return "leaf.fill"
-        case .community: return "bubble.left.and.bubble.right.fill"
-        case .quest: return "sparkles"
-        case .rent: return "house.fill"
+        case .home: return "FeatureCity"
+        case .locality: return "FeatureLocality"
+        case .lesson: return "FeatureLesson"
+        case .community: return "FeatureMentor"
+        case .quest: return "FeatureQuest"
+        case .rent: return "FeatureRent"
         }
     }
 }
