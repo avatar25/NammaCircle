@@ -47,15 +47,29 @@ Keep new user-facing screens aligned with these primitives before adding one-off
 
 ## Xcode Setup
 
-1. Open Xcode.
-2. Create a new iOS App project named `NammaCircle`.
-3. Choose SwiftUI for the interface and Swift for the language.
-4. Save the project inside `/ios`.
-5. Add the files under `ios/NammaCircle` to the app target.
-6. Ensure `ios/NammaCircle/App/NammaCircleApp.swift` is the only `@main` app entry point in the target.
-7. Add the Supabase Swift package dependency to the app target:
-   `https://github.com/supabase/supabase-swift.git`
-8. Build and run on an iOS simulator.
+The runnable Xcode project is checked in at:
+
+```sh
+cd /Users/shiben/Desktop/NammaCircle
+open ios/NammaCircleApp/NammaCircleApp.xcodeproj
+```
+
+Select the `NammaCircleApp` scheme and run it on any installed iOS simulator.
+The shared scheme sets `NAMMA_DATA_MODE=mock`, so no Supabase credentials are required for the default demo.
+
+Command-line compile check:
+
+```sh
+cd /Users/shiben/Desktop/NammaCircle
+xcrun simctl list devices available
+xcodebuild -project ios/NammaCircleApp/NammaCircleApp.xcodeproj \
+  -scheme NammaCircleApp \
+  -destination 'platform=iOS Simulator,name=iPhone 17' \
+  -derivedDataPath /private/tmp/NammaCircleDerivedData \
+  build
+```
+
+If `iPhone 17` is not installed, replace it with an available simulator name from `xcrun simctl list devices available`.
 
 `ios/Package.swift` records the same Supabase Swift dependency for reference.
 
@@ -89,6 +103,9 @@ The app keeps mock services available:
 - `MockForumService`
 - `MockQuestService`
 - `MockMentorService`
+
+`ServiceFactory` switches every app service between mock and Supabase implementations with `AppConfiguration.isMockMode`.
+This keeps each MVP surface demoable offline while preserving the Supabase integration path.
 
 Supabase service classes now read:
 

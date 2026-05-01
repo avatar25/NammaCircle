@@ -48,14 +48,31 @@ Use deterministic logic first. AI may later help explain decisions, but it must 
 
 ## Local Setup
 
+Prerequisites:
+
+- Xcode with an iOS simulator runtime
+- Node.js and npm
+- Deno
+- Supabase CLI and Docker
+
 ### iOS
 
 ```sh
-cd ios
-open README.md
+cd /Users/shiben/Desktop/NammaCircle
+open ios/NammaCircleApp/NammaCircleApp.xcodeproj
 ```
 
-Create an Xcode iOS app project named `NammaCircle`, add the files under `ios/NammaCircle` to the app target, and add the Supabase Swift package when Supabase mode is needed.
+The checked-in Xcode scheme defaults to mock mode, so the app can run without secrets.
+To verify compilation from the command line, use an installed simulator name from `xcrun simctl list devices available`:
+
+```sh
+cd /Users/shiben/Desktop/NammaCircle
+xcodebuild -project ios/NammaCircleApp/NammaCircleApp.xcodeproj \
+  -scheme NammaCircleApp \
+  -destination 'platform=iOS Simulator,name=iPhone 17' \
+  -derivedDataPath /private/tmp/NammaCircleDerivedData \
+  build
+```
 
 Mock mode is the default:
 
@@ -76,13 +93,20 @@ Never put a Supabase service role key in the iOS app.
 ### Admin
 
 ```sh
-cd admin
+cd /Users/shiben/Desktop/NammaCircle/admin
 cp .env.example .env.local
 npm install
 npm run dev
 ```
 
 Then open `http://localhost:3000` for the landing page or `http://localhost:3000/dashboard` for admin.
+
+Build check:
+
+```sh
+cd /Users/shiben/Desktop/NammaCircle
+npm --prefix admin run build
+```
 
 Required admin env vars:
 
@@ -97,7 +121,7 @@ The service role key is only for server-side admin actions.
 ### Supabase
 
 ```sh
-cd supabase
+cd /Users/shiben/Desktop/NammaCircle
 supabase start
 supabase db reset
 ```
@@ -107,6 +131,7 @@ The Supabase folder includes schema migrations, seeded Bangalore locality data, 
 Run edge-function logic tests with Deno:
 
 ```sh
+cd /Users/shiben/Desktop/NammaCircle
 deno test supabase/edge-functions/rent-check/rentFairness.test.ts
 deno test supabase/edge-functions/area-recommendations/areaRecommendations.test.ts
 deno test supabase/edge-functions/rewards/rewardLogic.test.ts
@@ -122,6 +147,7 @@ deno test supabase/edge-functions/ai-report/localityReport.test.ts
 - [Data model](docs/data-model.md)
 - [API contracts](docs/api-contracts.md)
 - [AI report service](docs/ai-report-service.md)
+- [MVP demo script](docs/mvp-demo-script.md)
 - [Trust and safety](docs/trust-and-safety.md)
 - [Agent guidelines](AGENTS.md)
 
