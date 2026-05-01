@@ -10,6 +10,7 @@ Supabase/Postgres is the source of truth for the NammaCircle MVP.
 - `migrations/0004_forum_moderation.sql`: pending/approved/rejected forum flow, reporting indexes, and public visibility policies.
 - `migrations/0005_quest_system.sql`: MVP quest types, submission status flow, approval-triggered points, and daily duplicate protection.
 - `migrations/0006_mentor_marketplace.sql`: mentor booking status flow and preferred time text for marketplace MVP.
+- `migrations/0007_leads.sql`: landing-page lead capture for deterministic area matches.
 - `seed.sql`: Bangalore locality, score, lesson, quest, and sample forum data.
 - `edge-functions/rent-check`: deterministic rent fairness check function and pure logic tests.
 - `edge-functions/rewards`: deterministic points, rank, and streak rules.

@@ -34,6 +34,7 @@ This repo is a monorepo for the MVP: SwiftUI iOS app, Next.js admin dashboard, S
 - Quests and points
 - Mentor profiles and booking requests
 - Admin moderation dashboard with pending forum review, user reports, and moderation action logs
+- Public landing page with deterministic area matching and lead capture
 
 Not in scope yet:
 
@@ -81,7 +82,7 @@ npm install
 npm run dev
 ```
 
-Then open `http://localhost:3000/dashboard`.
+Then open `http://localhost:3000` for the landing page or `http://localhost:3000/dashboard` for admin.
 
 Required admin env vars:
 

@@ -12,6 +12,7 @@ Next.js + TypeScript + Tailwind dashboard for the NammaCircle MVP.
 - Track quest submissions
 - Create, edit, activate, and deactivate MVP quests
 - Approve/reject quest submissions; approved submissions award points through the backend trigger
+- Public landing page at `/` with deterministic area matching and lead capture
 - Inspect basic activity metrics
 
 ## Not Implemented Yet
@@ -44,7 +45,7 @@ npm install
 npm run dev
 ```
 
-Open `http://localhost:3000/dashboard`.
+Open `http://localhost:3000` for the landing page or `http://localhost:3000/dashboard` for admin.
 
 ## Auth Notes
 
