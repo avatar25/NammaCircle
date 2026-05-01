@@ -250,7 +250,7 @@ struct NammaBrandMark: View {
 }
 
 struct BengaluruIllustrationView: View {
-    enum Scene {
+    enum Scene: Equatable {
         case home
         case locality
         case lesson

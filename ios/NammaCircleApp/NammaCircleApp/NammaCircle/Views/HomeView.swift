@@ -157,8 +157,12 @@ struct HomeHeroView: View {
                         .foregroundStyle(NammaColor.muted)
                 }
 
-                BengaluruIllustrationView(scene: .home)
-                    .frame(height: 162)
+                HStack {
+                    Spacer(minLength: 0)
+                    BengaluruIllustrationView(scene: .home)
+                        .frame(width: 220, height: 220)
+                    Spacer(minLength: 0)
+                }
 
                 if let locality {
                     HStack(spacing: 12) {
