@@ -55,7 +55,7 @@ Select the `NammaCircleApp` scheme and run on an installed simulator. The shared
 
 8. Completes quest
 
-   Open Quests. Select an active quest. Submit a text response; use the photo placeholder where relevant. Show status as pending unless it is a `learn_kannada` quest, which can auto-approve.
+   Open Quests. Select an active quest. Submit a text response; attach a quest photo where relevant. Show status as pending unless it is a `learn_kannada` quest, which can auto-approve.
 
 9. Requests mentor help
 

@@ -24,10 +24,11 @@ Reports are not automatic takedowns in the MVP. They create review work for admi
 
 ## Admin Principles
 
-- Admin tools should use server-side Supabase service role access only.
+- Admin tools can keep server-side Supabase service role access for trusted server actions, but database RLS also supports authenticated admin users.
+- Admin RLS is granted only from trusted Supabase Auth app metadata: `app_metadata.role = "admin"`, `app_metadata.roles` containing `"admin"`, or a `user_role` claim.
 - The service role key must never be exposed to browser or iOS code.
 - Actions that change content visibility should leave an audit row in `moderation_actions`.
-- Production admin auth is still a TODO; before launch, replace placeholder access with admin role claims or an `admin_users` table.
+- Do not use user-editable metadata for admin authorization decisions.
 
 ## AI Policy
 

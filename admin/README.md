@@ -18,7 +18,6 @@ Next.js + TypeScript + Tailwind dashboard for the NammaCircle MVP.
 ## Not Implemented Yet
 
 - Production auth
-- Role-based access control
 - Payments or payouts
 - AI moderation
 
@@ -49,4 +48,4 @@ Open `http://localhost:3000` for the landing page or `http://localhost:3000/dash
 
 ## Auth Notes
 
-Auth is intentionally a placeholder for the MVP. Server-side admin actions use `SUPABASE_SERVICE_ROLE_KEY`; never expose that key to client components or browser code. Replace `lib/admin-auth.ts` with production auth and admin role checks before launch.
+Auth is intentionally a placeholder for the MVP. Server-side admin actions still use `SUPABASE_SERVICE_ROLE_KEY`; never expose that key to client components or browser code. Database RLS also supports authenticated admin users whose trusted Supabase Auth app metadata marks them as admin. Replace `lib/admin-auth.ts` with production sign-in/session checks before launch.

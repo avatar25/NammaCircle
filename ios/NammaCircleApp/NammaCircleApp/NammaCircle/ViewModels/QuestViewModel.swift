@@ -5,10 +5,12 @@ import Combine
 final class QuestViewModel: ObservableObject {
     @Published var quests: [Quest] = []
     @Published var submissionText = ""
-    @Published var photoPlaceholderSelected = false
+    @Published var selectedProofImage: QuestProofImage?
+    @Published var selectedProofImageLabel: String?
     @Published var submissionStatuses: [UUID: QuestSubmissionStatus] = [:]
     @Published var isLoading = false
     @Published var isSubmitting = false
+    @Published var isPreparingPhoto = false
     @Published var errorMessage: String?
 
     private let service: QuestServicing
@@ -42,15 +44,42 @@ final class QuestViewModel: ObservableObject {
                 let status = try await service.submitQuest(
                     quest,
                     text: submissionText,
-                    photoURL: photoPlaceholderSelected ? "photo-upload-placeholder" : nil
+                    proofImage: selectedProofImage
                 )
                 submissionStatuses[quest.id] = status
                 submissionText = ""
-                photoPlaceholderSelected = false
+                clearProofImage()
             } catch {
                 errorMessage = error.localizedDescription
             }
         }
+    }
+
+    func beginPreparingProofImage() {
+        isPreparingPhoto = true
+        errorMessage = nil
+    }
+
+    func setProofImage(data: Data, mimeType: String, fileExtension: String) {
+        selectedProofImage = QuestProofImage(
+            data: data,
+            mimeType: mimeType,
+            fileExtension: fileExtension
+        )
+        selectedProofImageLabel = "\(formattedSize(data.count)) image ready"
+        isPreparingPhoto = false
+    }
+
+    func failPreparingProofImage(_ error: Error) {
+        selectedProofImage = nil
+        selectedProofImageLabel = nil
+        isPreparingPhoto = false
+        errorMessage = error.localizedDescription
+    }
+
+    func clearProofImage() {
+        selectedProofImage = nil
+        selectedProofImageLabel = nil
     }
 
     func status(for quest: Quest) -> QuestSubmissionStatus? {
@@ -58,10 +87,19 @@ final class QuestViewModel: ObservableObject {
     }
 
     func canSubmit(_ quest: Quest) -> Bool {
-        if submissionText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isSubmitting {
+        let hasText = !submissionText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        let hasPhoto = selectedProofImage != nil
+        if (!hasText && !hasPhoto) || isSubmitting || isPreparingPhoto {
             return false
         }
 
         return status(for: quest) != .pending && status(for: quest) != .approved
+    }
+
+    private func formattedSize(_ byteCount: Int) -> String {
+        let formatter = ByteCountFormatter()
+        formatter.allowedUnits = [.useKB, .useMB]
+        formatter.countStyle = .file
+        return formatter.string(fromByteCount: Int64(byteCount))
     }
 }

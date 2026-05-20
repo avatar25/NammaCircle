@@ -214,7 +214,7 @@ Quest types:
   "quest_id": "quest-uuid",
   "user_id": "auth-user-uuid",
   "text_response": "2BHK semi-furnished near HSR, rent around 48k, deposit 5 months.",
-  "photo_url": null,
+  "photo_url": "quest-proof/auth-user-uuid/proof-image-uuid.jpg",
   "verification_status": "pending"
 }
 ```
@@ -226,7 +226,8 @@ Rules:
 - Admin review changes submissions to `approved` or `rejected`.
 - Points are inserted into `points_ledger` only when a submission first becomes `approved`.
 - Daily quests prevent duplicate approved submissions for the same `quest_id`, `user_id`, and `submission_date`.
-- Photo upload is a placeholder in the MVP; clients may send a placeholder URL/string until storage is implemented.
+- Photo proof uploads go to the private Supabase Storage bucket `quest-proof`.
+- Clients upload to an object path under the authenticated user's UUID folder, then store the bucket-qualified object path in `photo_url`.
 
 ## Forum Moderation
 

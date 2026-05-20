@@ -9,7 +9,7 @@ SwiftUI iOS app skeleton for the NammaCircle MVP.
 - Services layer
 - Models shaped around the Supabase MVP tables
 - Mock services first
-- Supabase service placeholders for later integration
+- Supabase services for backend integration testing
 
 ## Source Layout
 
@@ -31,7 +31,7 @@ NammaCircle/
 - `RentCheckView`: rent/deposit form with mock deterministic result
 - `KannadaLessonView`: phrase card, usage note, local streak update
 - `ForumView`: approved posts, create post sheet, post detail with comments, and report buttons
-- `QuestsView`: quest list, detail, text/photo placeholder submission
+- `QuestsView`: quest list, detail, text proof, and real photo proof upload
 - `MentorView`: mentor list and booking request placeholder
 
 ## Visual Direction
@@ -93,6 +93,26 @@ The app also accepts `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_K
 
 Never put the service role key in the iOS app.
 
+Local Supabase simulator run:
+
+```sh
+cd /Users/shiben/Desktop/NammaCircle
+supabase start
+supabase db reset
+xcrun simctl list devices available
+xcodebuild -project ios/NammaCircleApp/NammaCircleApp.xcodeproj \
+  -scheme NammaCircleApp \
+  -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.2' \
+  -derivedDataPath /private/tmp/NammaCircleDerivedData \
+  build
+xcrun simctl boot <simulator-udid>
+xcrun simctl install <simulator-udid> /private/tmp/NammaCircleDerivedData/Build/Products/Debug-iphonesimulator/NammaCircleApp.app
+xcrun simctl launch --terminate-running-process <simulator-udid> Shiben.NammaCircleApp \
+  NAMMA_DATA_MODE=supabase \
+  SUPABASE_URL=http://127.0.0.1:54321 \
+  SUPABASE_ANON_KEY=<local-publishable-key-from-supabase-status>
+```
+
 ## Current Integration State
 
 The app keeps mock services available:
@@ -122,7 +142,7 @@ Supabase service classes now read:
 
 Forum post creation uses anonymous Supabase auth when the Supabase Swift package is linked and Anonymous Sign-Ins are enabled in Supabase. New posts are submitted as `pending`, the UI shows "Submitted for review.", and only `approved` or legacy `visible` posts/comments are fetched. Report buttons insert rows into `moderation_reports`.
 
-Quest submissions also use anonymous Supabase auth in development. Most quest proof is submitted as `pending`; `learn_kannada` quests auto-submit as `approved`. Points are awarded by the backend when a submission is approved, not directly by the iOS client. Photo upload is currently a placeholder toggle.
+Quest submissions also use anonymous Supabase auth in development. Most quest proof is submitted as `pending`; `learn_kannada` quests auto-submit as `approved`. Points are awarded by the backend when a submission is approved, not directly by the iOS client. Attached quest photos are uploaded to the private Supabase Storage bucket `quest-proof`, then the object path is saved in `quest_submissions.photo_url`.
 
 Mentor booking requests use anonymous Supabase auth in development. Users submit a topic and preferred time text; bookings start as `pending` and are reviewed by admin. Payments are intentionally not implemented.
 

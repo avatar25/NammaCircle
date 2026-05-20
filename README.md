@@ -127,6 +127,7 @@ supabase db reset
 ```
 
 The Supabase folder includes schema migrations, seeded Bangalore locality data, rent baselines, Kannada lessons, quests, forum sample data, and deterministic edge functions.
+It also creates the private `quest-proof` Storage bucket and MVP admin RLS policies based on trusted Supabase Auth app metadata.
 
 Run edge-function logic tests with Deno:
 

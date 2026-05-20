@@ -72,6 +72,23 @@ final class SupabaseClientProvider {
         try await anonymousAuthSession()
     }
 
+    func uploadQuestProofImage(
+        data: Data,
+        mimeType: String,
+        fileExtension: String,
+        session: SupabaseAuthSession
+    ) async throws -> String {
+        let objectPath = "\(session.userID.uuidString)/\(UUID().uuidString).\(fileExtension)"
+        var request = try makeRequest(path: "/storage/v1/object/quest-proof/\(objectPath)")
+        request.httpMethod = "POST"
+        request.setValue(mimeType, forHTTPHeaderField: "Content-Type")
+        request.setValue("Bearer \(session.accessToken)", forHTTPHeaderField: "Authorization")
+        request.httpBody = data
+
+        try await perform(request)
+        return "quest-proof/\(objectPath)"
+    }
+
     func invokeFunction<RequestBody: Encodable, ResponseBody: Decodable>(
         _ name: String,
         body: RequestBody,
@@ -137,6 +154,19 @@ final class SupabaseClientProvider {
         }
 
         return try JSONDecoder.supabase.decode(T.self, from: data)
+    }
+
+    private func perform(_ request: URLRequest) async throws {
+        let (data, response) = try await URLSession.shared.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw ServicePlaceholderError.invalidSupabaseResponse
+        }
+
+        guard (200..<300).contains(httpResponse.statusCode) else {
+            let message = String(data: data, encoding: .utf8) ?? "Supabase request failed."
+            throw ServicePlaceholderError.supabaseRequestFailed(message)
+        }
     }
 
     private func anonymousAuthSession() async throws -> SupabaseAuthSession {

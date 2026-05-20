@@ -63,7 +63,7 @@ Quest types are `learn_kannada`, `forum_help`, `photo_walk`, `rent_signal`, and 
 - `verification_status`
 - `submission_date`
 
-Approved quest submissions write to `points_ledger`. Daily quests allow only one approved submission for the same user, quest, and day.
+Approved quest submissions write to `points_ledger`. Daily quests allow only one approved submission for the same user, quest, and day. Photo proof is stored in the private Supabase Storage bucket `quest-proof`; `photo_url` stores the bucket-qualified object path.
 
 ### Mentor
 

@@ -1,4 +1,6 @@
 import SwiftUI
+import PhotosUI
+import UniformTypeIdentifiers
 
 struct QuestsView: View {
     @StateObject private var viewModel = QuestViewModel()
@@ -94,6 +96,7 @@ struct QuestCard: View {
 struct QuestDetailView: View {
     let quest: Quest
     @ObservedObject var viewModel: QuestViewModel
+    @State private var selectedPhotoItem: PhotosPickerItem?
 
     var body: some View {
         ScrollView(showsIndicators: false) {
@@ -131,10 +134,33 @@ struct QuestDetailView: View {
                             .padding(10)
                             .background(.white.opacity(0.62))
                             .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-                        Toggle(isOn: $viewModel.photoPlaceholderSelected) {
-                            Label("Photo upload placeholder", systemImage: "photo")
-                                .font(.subheadline)
-                                .foregroundStyle(NammaColor.muted)
+                        VStack(alignment: .leading, spacing: 8) {
+                            PhotosPicker(selection: $selectedPhotoItem, matching: .images) {
+                                Label(viewModel.selectedProofImage == nil ? "Attach quest photo" : "Replace quest photo", systemImage: "photo")
+                                    .font(.subheadline.weight(.semibold))
+                                    .foregroundStyle(NammaColor.deepGreen)
+                            }
+                            .onChange(of: selectedPhotoItem) { _, item in
+                                prepareProofImage(from: item)
+                            }
+                            if viewModel.isPreparingPhoto {
+                                Label("Preparing photo", systemImage: "hourglass")
+                                    .font(.caption)
+                                    .foregroundStyle(NammaColor.muted)
+                            } else if let label = viewModel.selectedProofImageLabel {
+                                HStack {
+                                    Label(label, systemImage: "checkmark.circle.fill")
+                                        .font(.caption.weight(.semibold))
+                                        .foregroundStyle(NammaColor.deepGreen)
+                                    Spacer()
+                                    Button("Remove") {
+                                        selectedPhotoItem = nil
+                                        viewModel.clearProofImage()
+                                    }
+                                    .font(.caption.weight(.semibold))
+                                    .foregroundStyle(NammaColor.rose)
+                                }
+                            }
                         }
                         Button(submitTitle(for: quest, status: viewModel.status(for: quest))) {
                             viewModel.submit(quest)
@@ -151,6 +177,31 @@ struct QuestDetailView: View {
         .navigationTitle("Quest Detail")
         .navigationBarTitleDisplayMode(.inline)
         .tint(NammaColor.deepGreen)
+    }
+
+    private func prepareProofImage(from item: PhotosPickerItem?) {
+        guard let item else {
+            viewModel.clearProofImage()
+            return
+        }
+
+        Task {
+            viewModel.beginPreparingProofImage()
+            do {
+                guard let data = try await item.loadTransferable(type: Data.self) else {
+                    throw ServicePlaceholderError.supabaseRequestFailed("Could not read the selected image.")
+                }
+
+                let contentType = item.supportedContentTypes.first { $0.conforms(to: .image) } ?? .jpeg
+                viewModel.setProofImage(
+                    data: data,
+                    mimeType: contentType.preferredMIMEType ?? "image/jpeg",
+                    fileExtension: contentType.preferredFilenameExtension ?? "jpg"
+                )
+            } catch {
+                viewModel.failPreparingProofImage(error)
+            }
+        }
     }
 }
 

@@ -3,7 +3,13 @@ import Foundation
 protocol QuestServicing {
     func fetchQuests() async throws -> [Quest]
     func fetchSubmissionStatuses() async throws -> [UUID: QuestSubmissionStatus]
-    func submitQuest(_ quest: Quest, text: String, photoURL: String?) async throws -> QuestSubmissionStatus
+    func submitQuest(_ quest: Quest, text: String, proofImage: QuestProofImage?) async throws -> QuestSubmissionStatus
+}
+
+struct QuestProofImage {
+    let data: Data
+    let mimeType: String
+    let fileExtension: String
 }
 
 final class MockQuestService: QuestServicing {
@@ -17,7 +23,7 @@ final class MockQuestService: QuestServicing {
         statuses
     }
 
-    func submitQuest(_ quest: Quest, text: String, photoURL: String?) async throws -> QuestSubmissionStatus {
+    func submitQuest(_ quest: Quest, text: String, proofImage: QuestProofImage?) async throws -> QuestSubmissionStatus {
         let status: QuestSubmissionStatus = quest.autoApproves ? .approved : .pending
         statuses[quest.id] = status
         return status
@@ -72,13 +78,25 @@ final class SupabaseQuestService: QuestServicing {
         return statuses
     }
 
-    func submitQuest(_ quest: Quest, text: String, photoURL: String?) async throws -> QuestSubmissionStatus {
+    func submitQuest(_ quest: Quest, text: String, proofImage: QuestProofImage?) async throws -> QuestSubmissionStatus {
         let session = try await provider.authenticatedSessionForWrite()
+        let photoURL: String?
+        if let proofImage {
+            photoURL = try await provider.uploadQuestProofImage(
+                data: proofImage.data,
+                mimeType: proofImage.mimeType,
+                fileExtension: proofImage.fileExtension,
+                session: session
+            )
+        } else {
+            photoURL = nil
+        }
         let status: QuestSubmissionStatus = quest.autoApproves ? .approved : .pending
+        let trimmedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
         let payload = SupabaseQuestSubmissionInsert(
             questId: quest.id,
             userId: session.userID,
-            textResponse: text,
+            textResponse: trimmedText.isEmpty ? nil : trimmedText,
             photoUrl: photoURL,
             verificationStatus: status.rawValue
         )

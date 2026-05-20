@@ -11,6 +11,7 @@ Supabase/Postgres is the source of truth for the NammaCircle MVP.
 - `migrations/0005_quest_system.sql`: MVP quest types, submission status flow, approval-triggered points, and daily duplicate protection.
 - `migrations/0006_mentor_marketplace.sql`: mentor booking status flow and preferred time text for marketplace MVP.
 - `migrations/0007_leads.sql`: landing-page lead capture for deterministic area matches.
+- `migrations/20260520111843_quest_storage_admin_rls.sql`: private quest proof Storage bucket plus admin-role RLS policies.
 - `seed.sql`: Bangalore locality, score, lesson, quest, mentor, rent baseline, rent report, forum, and moderation sample data.
 - `edge-functions/rent-check`: deterministic rent fairness check function and pure logic tests.
 - `edge-functions/rewards`: deterministic points, rank, and streak rules.
@@ -45,5 +46,6 @@ deno test supabase/edge-functions/ai-report/localityReport.test.ts
 
 - PostGIS is enabled with `create extension if not exists postgis`.
 - RLS is intentionally simple for MVP development.
-- Admin authorization is a TODO and should later use either custom JWT role claims or an `admin_users` table.
+- Admin RLS uses trusted Supabase Auth `app_metadata.role = "admin"`, `app_metadata.roles` containing `"admin"`, or a `user_role` claim. Do not use user-editable metadata for admin access.
+- Quest proof uploads go to the private `quest-proof` Storage bucket under an authenticated user's UUID folder.
 - Do not hardcode secrets in SQL, seed files, edge functions, or app code.
