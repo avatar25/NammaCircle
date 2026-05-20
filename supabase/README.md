@@ -5,7 +5,6 @@ Supabase/Postgres is the source of truth for the NammaCircle MVP.
 ## Contents
 
 - `migrations/0001_nammacircle_mvp_schema.sql`: initial MVP schema, indexes, PostGIS columns, and simple RLS policies.
-- `migrations/0001_initial_schema.sql`: superseded no-op placeholder kept so old local reset histories stay stable.
 - `migrations/0002_rent_baselines.sql`: fallback baseline table for deterministic rent checks.
 - `migrations/0003_progress_rewards.sql`: duplicate-safe reward ledger and derived point totals.
 - `migrations/0004_forum_moderation.sql`: pending/approved/rejected forum flow, reporting indexes, and public visibility policies.

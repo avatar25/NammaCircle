@@ -1,5 +1,0 @@
--- Superseded placeholder.
---
--- The real MVP schema lives in 0001_nammacircle_mvp_schema.sql. This file is
--- intentionally a no-op so fresh local resets do not create skinny placeholder
--- tables before the production-shaped schema runs.
